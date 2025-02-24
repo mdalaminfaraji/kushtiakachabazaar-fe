@@ -1,7 +1,9 @@
+import Banner from "@/components/home/banner";
+
 export default function Home() {
   return (
-    <h1 className="text-3xl font-bold underline text-muted-foreground">
-      Hello world!
-    </h1>
+    <main>
+      <Banner />
+    </main>
   );
 }
