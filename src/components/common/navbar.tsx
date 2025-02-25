@@ -78,7 +78,7 @@ const Navbar = () => {
                   <NavigationMenuItem>
                     <NavigationMenuTrigger>Products</NavigationMenuTrigger>
                     <NavigationMenuContent>
-                      <div className="grid gap-3 p-6 w-[400px] lg:w-[500px] lg:grid-cols-2">
+                      <div className="grid gap-3 p-6 w-[400px] lg:w-[500px] lg:grid-cols-2 z-[1000]">
                         <div className="row-span-3">
                           <h3 className="font-bold mb-2">Categories</h3>
                           <div className="grid gap-2">
