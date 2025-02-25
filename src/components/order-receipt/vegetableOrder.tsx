@@ -15,94 +15,70 @@ import {
 import { useRouter } from "next/navigation";
 import { Search, ShoppingCart, Trash2, Plus, Minus } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import LocationInput from "@/components/common/LocationInput";
 
 const vegetables = [
-  // শীতকালীন সবজি
-  { name: "বাঁধাকপি", perKgPrice: 50 },
-  { name: "ফুলকপি", perKgPrice: 60 },
-  { name: "মুলা", perKgPrice: 30 },
-  { name: "শালগম", perKgPrice: 35 },
-  { name: "গাজর", perKgPrice: 70 },
-  { name: "টমেটো", perKgPrice: 80 },
-  { name: "বেগুন", perKgPrice: 60 },
-  { name: "শিম", perKgPrice: 100 },
-  { name: "মটরশুঁটি", perKgPrice: 120 },
-  { name: "লাউ", perKgPrice: 50 },
-  { name: "ওলকপি", perKgPrice: 55 },
-  { name: "কাঁচা কলা", perKgPrice: 30 },
-  { name: "কুমড়া", perKgPrice: 45 },
-  { name: "পালং শাক", perKgPrice: 40 },
-  { name: "মেথি শাক", perKgPrice: 45 },
+  // শীতকালীন সবজি (Winter Vegetables)
+  { id: 1, name: "বাঁধাকপি", englishName: "Cabbage", perKgPrice: 50 },
+  { id: 2, name: "ফুলকপি", englishName: "Cauliflower", perKgPrice: 60 },
+  { id: 3, name: "মুলা", englishName: "Radish", perKgPrice: 30 },
+  { id: 4, name: "শালগম", englishName: "Turnip", perKgPrice: 35 },
+  { id: 5, name: "গাজর", englishName: "Carrot", perKgPrice: 70 },
+  { id: 6, name: "টমেটো", englishName: "Tomato", perKgPrice: 80 },
+  { id: 7, name: "বেগুন", englishName: "Eggplant", perKgPrice: 60 },
+  { id: 8, name: "শিম", englishName: "Flat Bean", perKgPrice: 100 },
+  { id: 9, name: "মটরশুঁটি", englishName: "Green Peas", perKgPrice: 120 },
+  { id: 10, name: "লাউ", englishName: "Bottle Gourd", perKgPrice: 50 },
+  { id: 11, name: "ওলকপি", englishName: "Kohlrabi", perKgPrice: 55 },
+  { id: 12, name: "কাঁচা কলা", englishName: "Green Banana", perKgPrice: 30 },
+  { id: 13, name: "কুমড়া", englishName: "Pumpkin", perKgPrice: 45 },
+  { id: 14, name: "পালং শাক", englishName: "Spinach", perKgPrice: 40 },
+  { id: 15, name: "মেথি শাক", englishName: "Fenugreek Leaves", perKgPrice: 45 },
 
-  // গ্রীষ্মকালীন সবজি
-  { name: "পটল", perKgPrice: 50 },
-  { name: "করলা", perKgPrice: 70 },
-  { name: "ঢেঁড়স", perKgPrice: 60 },
-  { name: "ঝিঙা", perKgPrice: 50 },
-  { name: "চিচিঙ্গা", perKgPrice: 55 },
-  { name: "কাঁকরোল", perKgPrice: 80 },
-  { name: "কচু", perKgPrice: 40 },
-  { name: "বরবটি", perKgPrice: 100 },
-  { name: "চাল কুমড়া", perKgPrice: 50 },
-  { name: "কাঁচা আম", perKgPrice: 120 },
-  { name: "চাউল কুমড়া", perKgPrice: 55 },
-  { name: "ধুন্দল", perKgPrice: 50 },
-  { name: "করলা পাতা", perKgPrice: 30 },
-  { name: "লাউ শাক", perKgPrice: 40 },
-  { name: "কুমড়ার ফুল", perKgPrice: 35 },
+  // গ্রীষ্মকালীন সবজি (Summer Vegetables)
+  { id: 16, name: "পটল", englishName: "Pointed Gourd", perKgPrice: 50 },
+  { id: 17, name: "করলা", englishName: "Bitter Gourd", perKgPrice: 70 },
+  { id: 18, name: "ঢেঁড়স", englishName: "Okra", perKgPrice: 60 },
+  { id: 19, name: "ঝিঙা", englishName: "Ridge Gourd", perKgPrice: 50 },
+  { id: 20, name: "চিচিঙ্গা", englishName: "Snake Gourd", perKgPrice: 55 },
+  { id: 21, name: "কাঁকরোল", englishName: "Teasle Gourd", perKgPrice: 80 },
+  { id: 22, name: "কচু", englishName: "Taro", perKgPrice: 40 },
+  { id: 23, name: "বরবটি", englishName: "Long Beans", perKgPrice: 100 },
+  { id: 24, name: "চাল কুমড়া", englishName: "Ash Gourd", perKgPrice: 50 },
 
-  // বর্ষাকালীন সবজি
-  { name: "কাঁচা মরিচ", perKgPrice: 150 },
-  { name: "চাল কুমড়া", perKgPrice: 50 },
-  { name: "ঢেঁড়স", perKgPrice: 60 },
-  { name: "করলা", perKgPrice: 70 },
-  { name: "কচু শাক", perKgPrice: 40 },
-  { name: "মিষ্টি কুমড়া", perKgPrice: 45 },
-  { name: "ডাটাশাক", perKgPrice: 35 },
-  { name: "কুমড়ার লতা", perKgPrice: 40 },
-  { name: "কলমি শাক", perKgPrice: 30 },
-  { name: "নট শাক", perKgPrice: 30 },
-  { name: "সজনেডাঁটা", perKgPrice: 80 },
-  { name: "শাপলা", perKgPrice: 50 },
-
-  // বছরজুড়ে পাওয়া যায় এমন সবজি
-  { name: "আলু", perKgPrice: 40 },
-  { name: "পেঁয়াজ", perKgPrice: 60 },
-  { name: "রসুন", perKgPrice: 140 },
-  { name: "আদা", perKgPrice: 180 },
-  { name: "লেবু", perKgPrice: 15 },
-  { name: "কাঁচা মরিচ", perKgPrice: 150 },
-  { name: "লাল শাক", perKgPrice: 40 },
-  { name: "পুঁই শাক", perKgPrice: 45 },
-  { name: "পাতা কপি", perKgPrice: 50 },
-  { name: "ধনে পাতা", perKgPrice: 200 },
-  { name: "লাউ", perKgPrice: 50 },
-  { name: "শসা", perKgPrice: 60 },
-
-  // কন্দ ও মূলজাতীয় সবজি
-  { name: "আদা", perKgPrice: 180 },
-  { name: "রসুন", perKgPrice: 140 },
-  { name: "মিষ্টি আলু", perKgPrice: 50 },
-  { name: "মূলো", perKgPrice: 30 },
-  { name: "শালগম", perKgPrice: 35 },
-  { name: "কচু", perKgPrice: 40 },
-  { name: "ওল", perKgPrice: 45 },
+  // বছরজুড়ে পাওয়া যায় এমন সবজি (Year-round Vegetables)
+  { id: 25, name: "আলু", englishName: "Potato", perKgPrice: 40 },
+  { id: 26, name: "পেঁয়াজ", englishName: "Onion", perKgPrice: 60 },
+  { id: 27, name: "রসুন", englishName: "Garlic", perKgPrice: 140 },
+  { id: 28, name: "আদা", englishName: "Ginger", perKgPrice: 180 },
+  { id: 29, name: "লেবু", englishName: "Lemon", perKgPrice: 15 },
+  { id: 30, name: "কাঁচা মরিচ", englishName: "Green Chili", perKgPrice: 150 },
 ];
 
 const quantityOptions = [250, 500, 750, 1000, 2000, 3000, 4000, 5000];
+
+const validatePhoneNumber = (phone: string) => {
+  const phoneRegex = /^(01[3-9]\d{8})$/;
+  return phoneRegex.test(phone);
+};
 
 export default function VegetableOrder() {
   const [order, setOrder] = useState(
     vegetables.map((veg) => ({ ...veg, quantity: 0, total: 0 }))
   );
-  const [user, setUser] = useState({ name: "", phone: "", address: "" });
+  const [user, setUser] = useState({
+    name: "",
+    phone: "",
+    address: "",
+    location: { lat: 0, lng: 0 },
+  });
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
 
-  const handleQuantityChange = useCallback((index: number, value: any) => {
+  const handleQuantityChange = useCallback((id: number, value: any) => {
     setOrder((prevOrder) =>
-      prevOrder.map((item, i) =>
-        i === index
+      prevOrder.map((item) =>
+        item.id === id
           ? {
               ...item,
               quantity: Number(value),
@@ -114,8 +90,11 @@ export default function VegetableOrder() {
   }, []);
 
   const filteredVegetables = useMemo(() => {
-    return order.filter((item) =>
-      item.name.toLowerCase().includes(searchQuery.toLowerCase())
+    const query = searchQuery.toLowerCase();
+    return order.filter(
+      (item) =>
+        item.name.toLowerCase().includes(query) ||
+        item.englishName.toLowerCase().includes(query)
     );
   }, [order, searchQuery]);
 
@@ -129,6 +108,11 @@ export default function VegetableOrder() {
   );
 
   const handleSubmit = async () => {
+    if (!validatePhoneNumber(user.phone)) {
+      alert("দয়া করে একটি বৈধ বাংলাদেশী ফোন নম্বর প্রদান করুন।");
+      return;
+    }
+
     if (selectedItems.length === 0) {
       alert("কমপক্ষে একটি সবজি অর্ডার করুন!");
       return;
@@ -138,7 +122,12 @@ export default function VegetableOrder() {
       return;
     }
     console.log(selectedItems);
-    const data = { user, order: selectedItems, totalAmount, orderDate: new Date() };
+    const data = {
+      user,
+      order: selectedItems,
+      totalAmount,
+      orderDate: new Date(),
+    };
     console.log(data);
     return;
     await fetch("http://localhost:1337/api/orders", {
@@ -149,37 +138,43 @@ export default function VegetableOrder() {
     router.push("/order-success");
   };
 
-  const handleRemoveItem = (index: number) => {
+  const handleRemoveItem = (id: number) => {
     setOrder((prevOrder) =>
-      prevOrder.map((item, i) =>
-        i === index ? { ...item, quantity: 0, total: 0 } : item
+      prevOrder.map((item) =>
+        item.id === id ? { ...item, quantity: 0, total: 0 } : item
       )
     );
   };
 
-  const handleAdjustQuantity = (index: number, adjustment: number) => {
-    const item = order[index];
+  const handleAdjustQuantity = (id: number, adjustment: number) => {
+    const item = order.find((i) => i.id === id);
+    if (!item) return;
+
     const currentQty = item.quantity;
     const nearestOption = quantityOptions.reduce((prev, curr) => {
-      return Math.abs(curr - (currentQty + adjustment)) < Math.abs(prev - (currentQty + adjustment))
+      return Math.abs(curr - (currentQty + adjustment)) <
+        Math.abs(prev - (currentQty + adjustment))
         ? curr
         : prev;
     });
-    handleQuantityChange(index, nearestOption);
+    handleQuantityChange(id, nearestOption);
   };
 
   return (
     <div className="container mx-auto p-4">
       <h2 className="text-2xl font-bold mb-6 text-center">সবজি অর্ডার ফর্ম</h2>
-      
+
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Left Column - Product Selection */}
         <div className="space-y-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <Search
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              size={20}
+            />
             <Input
               type="text"
-              placeholder="সবজি খুঁজুন..."
+              placeholder="সবজি খুঁজুন... (বাংলা অথবা English)"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -188,16 +183,23 @@ export default function VegetableOrder() {
 
           <ScrollArea className="h-[600px] rounded-md border p-4">
             <div className="grid gap-4">
-              {filteredVegetables.map((item, index) => (
-                <Card key={index} className="hover:border-primary transition-colors">
+              {filteredVegetables.map((item) => (
+                <Card
+                  key={item.id}
+                  className="hover:border-primary transition-colors"
+                >
                   <CardContent className="flex items-center justify-between p-4">
                     <div className="flex-1">
                       <h3 className="font-medium">{item.name}</h3>
-                      <p className="text-sm text-muted-foreground">{item.perKgPrice}৳/কেজি</p>
+                      <p className="text-sm text-muted-foreground">
+                        {item.englishName} • {item.perKgPrice}৳/কেজি
+                      </p>
                     </div>
                     <Select
                       value={item.quantity.toString()}
-                      onValueChange={(value) => handleQuantityChange(index, Number(value))}
+                      onValueChange={(value) =>
+                        handleQuantityChange(item.id, Number(value))
+                      }
                     >
                       <SelectTrigger className="w-[120px]">
                         <SelectValue placeholder="পরিমাণ" />
@@ -206,7 +208,9 @@ export default function VegetableOrder() {
                         <SelectItem value="0">0 গ্রাম</SelectItem>
                         {quantityOptions.map((opt) => (
                           <SelectItem key={opt} value={opt.toString()}>
-                            {opt >= 1000 ? `${opt/1000} কেজি` : `${opt} গ্রাম`}
+                            {opt >= 1000
+                              ? `${opt / 1000} কেজি`
+                              : `${opt} গ্রাম`}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -234,15 +238,18 @@ export default function VegetableOrder() {
               ) : (
                 <ScrollArea className="h-[300px]">
                   <div className="space-y-4">
-                    {selectedItems.map((item, index) => (
-                      <div key={index} className="flex items-center justify-between p-2 rounded-lg bg-secondary">
+                    {selectedItems.map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex items-center justify-between p-2 rounded-lg bg-secondary"
+                      >
                         <div className="flex-1">
                           <h4 className="font-medium">{item.name}</h4>
                           <p className="text-sm text-muted-foreground">
-                            {item.quantity >= 1000 
-                              ? `${item.quantity/1000} কেজি` 
-                              : `${item.quantity} গ্রাম`
-                            } × {item.perKgPrice}৳
+                            {item.quantity >= 1000
+                              ? `${item.quantity / 1000} কেজি`
+                              : `${item.quantity} গ্রাম`}{" "}
+                            × {item.perKgPrice}৳
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
@@ -250,7 +257,9 @@ export default function VegetableOrder() {
                             variant="outline"
                             size="icon"
                             className="h-8 w-8"
-                            onClick={() => handleAdjustQuantity(index, -quantityOptions[0])}
+                            onClick={() =>
+                              handleAdjustQuantity(item.id, -quantityOptions[0])
+                            }
                           >
                             <Minus className="h-4 w-4" />
                           </Button>
@@ -261,7 +270,9 @@ export default function VegetableOrder() {
                             variant="outline"
                             size="icon"
                             className="h-8 w-8"
-                            onClick={() => handleAdjustQuantity(index, quantityOptions[0])}
+                            onClick={() =>
+                              handleAdjustQuantity(item.id, quantityOptions[0])
+                            }
                           >
                             <Plus className="h-4 w-4" />
                           </Button>
@@ -269,7 +280,7 @@ export default function VegetableOrder() {
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 text-destructive"
-                            onClick={() => handleRemoveItem(index)}
+                            onClick={() => handleRemoveItem(item.id)}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -305,10 +316,15 @@ export default function VegetableOrder() {
                   value={user.phone}
                   onChange={(e) => setUser({ ...user, phone: e.target.value })}
                 />
-                <Input
-                  placeholder="ঠিকানা"
+                <LocationInput
                   value={user.address}
-                  onChange={(e) => setUser({ ...user, address: e.target.value })}
+                  onChange={(location) =>
+                    setUser({
+                      ...user,
+                      address: location.address,
+                      location: { lat: location.lat, lng: location.lng },
+                    })
+                  }
                 />
               </div>
             </CardContent>
@@ -318,7 +334,12 @@ export default function VegetableOrder() {
             onClick={handleSubmit}
             className="w-full"
             size="lg"
-            disabled={selectedItems.length === 0 || !user.name || !user.phone || !user.address}
+            disabled={
+              selectedItems.length === 0 ||
+              !user.name ||
+              !user.phone ||
+              !user.address
+            }
           >
             অর্ডার কনফার্ম করুন
           </Button>
