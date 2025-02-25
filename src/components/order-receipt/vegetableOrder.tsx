@@ -13,7 +13,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useRouter } from "next/navigation";
-import { Search } from "lucide-react";
+import { Search, ShoppingCart, Trash2, Plus, Minus } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const vegetables = [
   // শীতকালীন সবজি
@@ -118,15 +119,22 @@ export default function VegetableOrder() {
     );
   }, [order, searchQuery]);
 
+  const selectedItems = useMemo(() => {
+    return order.filter((item) => item.quantity > 0);
+  }, [order]);
+
   const totalAmount = useMemo(
     () => order.reduce((acc, item) => acc + item.total, 0),
     [order]
   );
 
   const handleSubmit = async () => {
-    const selectedItems = order.filter((item) => item.quantity > 0);
     if (selectedItems.length === 0) {
       alert("কমপক্ষে একটি সবজি অর্ডার করুন!");
+      return;
+    }
+    if (!user.name || !user.phone || !user.address) {
+      alert("অনুগ্রহ করে আপনার তথ্য পূরণ করুন!");
       return;
     }
     console.log(selectedItems);
@@ -141,93 +149,181 @@ export default function VegetableOrder() {
     router.push("/order-success");
   };
 
+  const handleRemoveItem = (index: number) => {
+    setOrder((prevOrder) =>
+      prevOrder.map((item, i) =>
+        i === index ? { ...item, quantity: 0, total: 0 } : item
+      )
+    );
+  };
+
+  const handleAdjustQuantity = (index: number, adjustment: number) => {
+    const item = order[index];
+    const currentQty = item.quantity;
+    const nearestOption = quantityOptions.reduce((prev, curr) => {
+      return Math.abs(curr - (currentQty + adjustment)) < Math.abs(prev - (currentQty + adjustment))
+        ? curr
+        : prev;
+    });
+    handleQuantityChange(index, nearestOption);
+  };
+
   return (
-    <div className="max-w-2xl mx-auto p-4">
+    <div className="container mx-auto p-4">
       <h2 className="text-2xl font-bold mb-6 text-center">সবজি অর্ডার ফর্ম</h2>
       
-      {/* Search Bar */}
-      <div className="relative mb-6">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-        <Input
-          type="text"
-          placeholder="সবজি খুঁজুন..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10"
-        />
-      </div>
+      <div className="grid lg:grid-cols-2 gap-6">
+        {/* Left Column - Product Selection */}
+        <div className="space-y-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <Input
+              type="text"
+              placeholder="সবজি খুঁজুন..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
 
-      {/* Vegetables Grid */}
-      <div className="grid gap-4">
-        {filteredVegetables.map((item, index) => (
-          <Card key={index} className={item.quantity > 0 ? 'border-primary' : ''}>
-            <CardContent className="flex items-center justify-between p-4">
-              <div className="flex-1">
-                <h3 className="font-medium">{item.name}</h3>
-                <p className="text-sm text-muted-foreground">{item.perKgPrice}৳/কেজি</p>
+          <ScrollArea className="h-[600px] rounded-md border p-4">
+            <div className="grid gap-4">
+              {filteredVegetables.map((item, index) => (
+                <Card key={index} className="hover:border-primary transition-colors">
+                  <CardContent className="flex items-center justify-between p-4">
+                    <div className="flex-1">
+                      <h3 className="font-medium">{item.name}</h3>
+                      <p className="text-sm text-muted-foreground">{item.perKgPrice}৳/কেজি</p>
+                    </div>
+                    <Select
+                      value={item.quantity.toString()}
+                      onValueChange={(value) => handleQuantityChange(index, Number(value))}
+                    >
+                      <SelectTrigger className="w-[120px]">
+                        <SelectValue placeholder="পরিমাণ" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">0 গ্রাম</SelectItem>
+                        {quantityOptions.map((opt) => (
+                          <SelectItem key={opt} value={opt.toString()}>
+                            {opt >= 1000 ? `${opt/1000} কেজি` : `${opt} গ্রাম`}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </ScrollArea>
+        </div>
+
+        {/* Right Column - Cart & Checkout */}
+        <div className="space-y-6">
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <ShoppingCart className="text-primary" />
+                <h3 className="text-lg font-bold">আপনার অর্ডার</h3>
               </div>
-              <div className="flex items-center gap-2">
-                <Select
-                  value={item.quantity.toString()}
-                  onValueChange={(value) => handleQuantityChange(index, Number(value))}
-                >
-                  <SelectTrigger className="w-[120px]">
-                    <SelectValue placeholder="পরিমাণ" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="0">0 গ্রাম</SelectItem>
-                    {quantityOptions.map((opt) => (
-                      <SelectItem key={opt} value={opt.toString()}>
-                        {opt >= 1000 ? `${opt/1000} কেজি` : `${opt} গ্রাম`}
-                      </SelectItem>
+
+              {selectedItems.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">
+                  কোন সবজি নির্বাচন করা হয়নি
+                </p>
+              ) : (
+                <ScrollArea className="h-[300px]">
+                  <div className="space-y-4">
+                    {selectedItems.map((item, index) => (
+                      <div key={index} className="flex items-center justify-between p-2 rounded-lg bg-secondary">
+                        <div className="flex-1">
+                          <h4 className="font-medium">{item.name}</h4>
+                          <p className="text-sm text-muted-foreground">
+                            {item.quantity >= 1000 
+                              ? `${item.quantity/1000} কেজি` 
+                              : `${item.quantity} গ্রাম`
+                            } × {item.perKgPrice}৳
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => handleAdjustQuantity(index, -quantityOptions[0])}
+                          >
+                            <Minus className="h-4 w-4" />
+                          </Button>
+                          <span className="text-sm font-medium w-20 text-center">
+                            {item.total}৳
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => handleAdjustQuantity(index, quantityOptions[0])}
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive"
+                            onClick={() => handleRemoveItem(index)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
                     ))}
-                  </SelectContent>
-                </Select>
-                {item.quantity > 0 && (
-                  <div className="text-sm font-medium">
-                    মোট: {item.total}৳
                   </div>
-                )}
+                </ScrollArea>
+              )}
+
+              {selectedItems.length > 0 && (
+                <div className="mt-4 pt-4 border-t">
+                  <div className="flex justify-between text-lg font-bold">
+                    <span>মোট মূল্য:</span>
+                    <span>{totalAmount}৳</span>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6 space-y-4">
+              <h3 className="font-bold">ডেলিভারি তথ্য</h3>
+              <div className="space-y-4">
+                <Input
+                  placeholder="আপনার নাম"
+                  value={user.name}
+                  onChange={(e) => setUser({ ...user, name: e.target.value })}
+                />
+                <Input
+                  placeholder="মোবাইল নম্বর"
+                  value={user.phone}
+                  onChange={(e) => setUser({ ...user, phone: e.target.value })}
+                />
+                <Input
+                  placeholder="ঠিকানা"
+                  value={user.address}
+                  onChange={(e) => setUser({ ...user, address: e.target.value })}
+                />
               </div>
             </CardContent>
           </Card>
-        ))}
-      </div>
 
-      {/* Order Summary */}
-      {totalAmount > 0 && (
-        <div className="mt-6 p-4 bg-secondary rounded-lg">
-          <h3 className="font-bold mb-2">অর্ডার সারাংশ</h3>
-          <p className="text-lg">মোট মূল্য: {totalAmount}৳</p>
+          <Button
+            onClick={handleSubmit}
+            className="w-full"
+            size="lg"
+            disabled={selectedItems.length === 0 || !user.name || !user.phone || !user.address}
+          >
+            অর্ডার কনফার্ম করুন
+          </Button>
         </div>
-      )}
-
-      {/* User Information */}
-      <div className="mt-6 space-y-4">
-        <Input
-          placeholder="আপনার নাম"
-          value={user.name}
-          onChange={(e) => setUser({ ...user, name: e.target.value })}
-        />
-        <Input
-          placeholder="মোবাইল নম্বর"
-          value={user.phone}
-          onChange={(e) => setUser({ ...user, phone: e.target.value })}
-        />
-        <Input
-          placeholder="ঠিকানা"
-          value={user.address}
-          onChange={(e) => setUser({ ...user, address: e.target.value })}
-        />
       </div>
-
-      <Button
-        onClick={handleSubmit}
-        className="w-full mt-6"
-        disabled={totalAmount === 0}
-      >
-        অর্ডার কনফার্ম করুন
-      </Button>
     </div>
   );
 }
