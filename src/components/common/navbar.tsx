@@ -40,7 +40,7 @@ const Navbar = () => {
   return (
     <>
       <TopNavbar />
-      <nav className="w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50 border-b">
+      <nav className="w-full sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b z-50">
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between gap-4">
             {/* Left side - Logo and Website Name */}
@@ -78,7 +78,7 @@ const Navbar = () => {
                   <NavigationMenuItem>
                     <NavigationMenuTrigger>Products</NavigationMenuTrigger>
                     <NavigationMenuContent>
-                      <div className="grid gap-3 p-6 w-[400px] lg:w-[500px] lg:grid-cols-2 z-[1000]">
+                      <div className="grid gap-3 p-6 w-[400px] lg:w-[500px] lg:grid-cols-2">
                         <div className="row-span-3">
                           <h3 className="font-bold mb-2">Categories</h3>
                           <div className="grid gap-2">
