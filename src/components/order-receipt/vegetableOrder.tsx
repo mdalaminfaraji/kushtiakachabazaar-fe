@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -28,9 +26,21 @@ const vegetables = [
   { id: 7, name: "বেগুন", englishName: "Eggplant", perKgPrice: 60 },
   { id: 8, name: "শিম", englishName: "Flat Bean", perKgPrice: 100 },
   { id: 9, name: "মটরশুঁটি", englishName: "Green Peas", perKgPrice: 120 },
-  { id: 10, name: "লাউ", englishName: "Bottle Gourd", perKgPrice: 50 },
+  {
+    id: 10,
+    name: "লাউ",
+    englishName: "Bottle Gourd",
+    pricePerPiece: 20,
+    isPricePerPiece: true,
+  },
   { id: 11, name: "ওলকপি", englishName: "Kohlrabi", perKgPrice: 55 },
-  { id: 12, name: "কাঁচা কলা", englishName: "Green Banana", perKgPrice: 30 },
+  {
+    id: 12,
+    name: "কাঁচা কলা",
+    englishName: "Green Banana",
+    pricePerPiece: 5,
+    isPricePerPiece: true,
+  },
   { id: 13, name: "কুমড়া", englishName: "Pumpkin", perKgPrice: 45 },
   { id: 14, name: "পালং শাক", englishName: "Spinach", perKgPrice: 40 },
   { id: 15, name: "মেথি শাক", englishName: "Fenugreek Leaves", perKgPrice: 45 },
@@ -51,11 +61,21 @@ const vegetables = [
   { id: 26, name: "পেঁয়াজ", englishName: "Onion", perKgPrice: 60 },
   { id: 27, name: "রসুন", englishName: "Garlic", perKgPrice: 140 },
   { id: 28, name: "আদা", englishName: "Ginger", perKgPrice: 180 },
-  { id: 29, name: "লেবু", englishName: "Lemon", perKgPrice: 15 },
+  {
+    id: 29,
+    name: "লেবু",
+    englishName: "Lemon",
+    pricePerPiece: 10,
+    isPricePerPiece: true,
+  },
   { id: 30, name: "কাঁচা মরিচ", englishName: "Green Chili", perKgPrice: 150 },
 ];
 
+// Quantity options for weight-based products (in grams)
 const quantityOptions = [250, 500, 750, 1000, 2000, 3000, 4000, 5000];
+
+// Quantity options for piece-based products
+const pieceOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20];
 
 const validatePhoneNumber = (phone: string) => {
   const phoneRegex = /^(01[3-9]\d{8})$/;
@@ -64,7 +84,11 @@ const validatePhoneNumber = (phone: string) => {
 
 export default function VegetableOrder() {
   const [order, setOrder] = useState(
-    vegetables.map((veg) => ({ ...veg, quantity: 0, total: 0 }))
+    vegetables.map((veg) => ({
+      ...veg,
+      quantity: 0,
+      total: 0,
+    }))
   );
   const [user, setUser] = useState({
     name: "",
@@ -75,19 +99,55 @@ export default function VegetableOrder() {
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
 
-  const handleQuantityChange = useCallback((id: number, value: any) => {
+  // Update handleQuantityChange to handle both types
+  const handleQuantityChange = (id: number, quantity: number) => {
+    setOrder((prevOrder) =>
+      prevOrder.map((item) => {
+        if (item.id !== id) return item;
+
+        const newQuantity = quantity;
+        const total = item.isPricePerPiece
+          ? newQuantity * (item.pricePerPiece || 0)
+          : (newQuantity / 1000) * (item.perKgPrice || 0);
+
+        return {
+          ...item,
+          quantity: newQuantity,
+          total,
+        };
+      })
+    );
+  };
+
+  const handleRemoveItem = (id: number) => {
     setOrder((prevOrder) =>
       prevOrder.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              quantity: Number(value),
-              total: (Number(value) / 1000) * item.perKgPrice,
-            }
-          : item
+        item.id === id ? { ...item, quantity: 0, total: 0 } : item
       )
     );
-  }, []);
+  };
+
+  const handleAdjustQuantity = (id: number, adjustment: number) => {
+    const item = order.find((i) => i.id === id);
+    if (!item) return;
+
+    const currentQty = item.quantity;
+
+    if (item.isPricePerPiece) {
+      // For piece-based products, just increment/decrement by 1
+      const newQty = Math.max(0, currentQty + (adjustment > 0 ? 1 : -1));
+      handleQuantityChange(id, newQty);
+    } else {
+      // For weight-based products, use the existing logic
+      const nearestOption = quantityOptions.reduce((prev, curr) => {
+        return Math.abs(curr - (currentQty + adjustment)) <
+          Math.abs(prev - (currentQty + adjustment))
+          ? curr
+          : prev;
+      });
+      handleQuantityChange(id, nearestOption);
+    }
+  };
 
   const filteredVegetables = useMemo(() => {
     const query = searchQuery.toLowerCase();
@@ -137,29 +197,6 @@ export default function VegetableOrder() {
     });
     router.push("/order-success");
   };
-
-  const handleRemoveItem = (id: number) => {
-    setOrder((prevOrder) =>
-      prevOrder.map((item) =>
-        item.id === id ? { ...item, quantity: 0, total: 0 } : item
-      )
-    );
-  };
-
-  const handleAdjustQuantity = (id: number, adjustment: number) => {
-    const item = order.find((i) => i.id === id);
-    if (!item) return;
-
-    const currentQty = item.quantity;
-    const nearestOption = quantityOptions.reduce((prev, curr) => {
-      return Math.abs(curr - (currentQty + adjustment)) <
-        Math.abs(prev - (currentQty + adjustment))
-        ? curr
-        : prev;
-    });
-    handleQuantityChange(id, nearestOption);
-  };
-
   return (
     <div className="container mx-auto p-4">
       <h2 className="text-2xl font-bold mb-6 text-center">সবজি অর্ডার ফর্ম</h2>
@@ -192,7 +229,10 @@ export default function VegetableOrder() {
                     <div className="flex-1">
                       <h3 className="font-medium">{item.name}</h3>
                       <p className="text-sm text-muted-foreground">
-                        {item.englishName} • {item.perKgPrice}৳/কেজি
+                        {item.englishName} -{" "}
+                        {item.isPricePerPiece
+                          ? `${item.pricePerPiece}৳/পিস`
+                          : `${item.perKgPrice}৳/কেজি`}
                       </p>
                     </div>
                     <Select
@@ -202,13 +242,22 @@ export default function VegetableOrder() {
                       }
                     >
                       <SelectTrigger className="w-[120px]">
-                        <SelectValue placeholder="পরিমাণ" />
+                        <SelectValue
+                          placeholder={item.isPricePerPiece ? "পিস" : "পরিমাণ"}
+                        />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="0">0 গ্রাম</SelectItem>
-                        {quantityOptions.map((opt) => (
+                        <SelectItem value="0">
+                          {item.isPricePerPiece ? "0 পিস" : "0 গ্রাম"}
+                        </SelectItem>
+                        {(item.isPricePerPiece
+                          ? pieceOptions
+                          : quantityOptions
+                        ).map((opt) => (
                           <SelectItem key={opt} value={opt.toString()}>
-                            {opt >= 1000
+                            {item.isPricePerPiece
+                              ? `${opt} পিস`
+                              : opt >= 1000
                               ? `${opt / 1000} কেজি`
                               : `${opt} গ্রাম`}
                           </SelectItem>
@@ -246,10 +295,13 @@ export default function VegetableOrder() {
                         <div className="flex-1">
                           <h4 className="font-medium">{item.name}</h4>
                           <p className="text-sm text-muted-foreground">
-                            {item.quantity >= 1000
-                              ? `${item.quantity / 1000} কেজি`
-                              : `${item.quantity} গ্রাম`}{" "}
-                            × {item.perKgPrice}৳
+                            {item.isPricePerPiece
+                              ? `${item.quantity} পিস × ${item.pricePerPiece}৳`
+                              : `${
+                                  item.quantity >= 1000
+                                    ? `${item.quantity / 1000} কেজি`
+                                    : `${item.quantity} গ্রাম`
+                                } × ${item.perKgPrice}৳`}
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
