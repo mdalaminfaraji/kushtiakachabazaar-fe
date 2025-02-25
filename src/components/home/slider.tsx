@@ -43,7 +43,7 @@ export const Slider = () => {
     return () => clearInterval(interval);
   }, []);
   return (
-    <div className="relative h-[300px] md:h-[400px] lg:h-[500px]">
+    <div className="relative h-[300px] md:h-[400px] lg:h-[500px] z-10">
       {isLoading ? (
         <div className="w-full h-full animate-pulse bg-muted rounded-lg" />
       ) : (
@@ -59,7 +59,7 @@ export const Slider = () => {
                 src={product.image}
                 alt={product.alt}
                 fill
-                className="object-contain"
+                className="object-contain z-0"
                 priority={index === 0}
               />
             </div>
