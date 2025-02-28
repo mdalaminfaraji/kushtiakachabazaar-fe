@@ -136,7 +136,7 @@ const Navbar = () => {
                     </Link>
                   </NavigationMenuItem>
                   <NavigationMenuItem>
-                    <Link href="/contact" legacyBehavior passHref>
+                    <Link href="/contacts" legacyBehavior passHref>
                       <NavigationMenuLink className="font-medium">
                         Contact
                       </NavigationMenuLink>

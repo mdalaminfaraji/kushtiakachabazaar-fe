@@ -28,6 +28,9 @@ const formSchema = z
     username: z.string().min(2, {
       message: "Username must be at least 2 characters.",
     }),
+    gmail: z.string().email({
+      message: "Please enter a valid email address.",
+    }),
     mobile: z.string().regex(/^\+8801[3-9]\d{8}$/, {
       message: "Please enter a valid Bangladeshi mobile number.",
     }),
@@ -65,6 +68,7 @@ export function RegisterForm() {
     defaultValues: {
       username: "",
       mobile: "",
+      gmail: "",
       location: {
         address: "",
         lat: 0,
@@ -113,6 +117,19 @@ export function RegisterForm() {
                 <FormLabel>Username</FormLabel>
                 <FormControl>
                   <Input placeholder="johndoe" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="gmail"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Gmail</FormLabel>
+                <FormControl>
+                  <Input placeholder="johndoe@gmail.com" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

@@ -1,212 +1,203 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// "use client";
-
-// import { useState, useEffect } from "react";
-// import PhoneInputForm from "@/components/auth-component/PhoneInputForm";
-// import OtpVerificationForm from "@/components/auth-component/OtpVerificationForm";
-// import {
-//   auth,
-//   setupRecaptcha,
-//   googleProvider,
-//   facebookProvider,
-// } from "../../../firebase";
-// import {
-//   signInWithPhoneNumber,
-//   signInWithPopup,
-//   PhoneAuthProvider,
-//   signInWithCredential,
-// } from "firebase/auth";
-// import { toast } from "sonner";
-// import { Button } from "@/components/ui/button";
-
-// export default function LoginPage() {
-//   const [step, setStep] = useState<"phone" | "otp" | "login">("login");
-//   const [phone, setPhone] = useState("");
-//   const [verificationId, setVerificationId] = useState("");
-
-//   const handlePhoneSubmit = async (phoneNumber: string) => {
-//     // Validate Bangladeshi phone number (must start with 01 and be 11 digits)
-//     const phoneRegex = /^01[3-9]\d{8}$/;
-//     if (!phoneRegex.test(phoneNumber)) {
-//       toast.error("দয়া করে সঠিক মোবাইল নাম্বার দিন");
-//       return;
-//     }
-
-//     try {
-//       const confirmationResult = await signInWithPhoneNumber(
-//         auth,
-//         `+88${phoneNumber}`
-//       );
-//       setVerificationId(confirmationResult.verificationId);
-//       setPhone(phoneNumber);
-//       setStep("otp");
-//       toast.success("ভেরিফিকেশন কোড পাঠানো হয়েছে");
-//     } catch (error) {
-//       console.error("Error during phone number sign-in:", error);
-//       toast.error("একটি সমস্যা হয়েছে, আবার চেষ্টা করুন");
-//     }
-//   };
-
-//   const handleOtpVerify = async (otp: string) => {
-//     try {
-//       const credential = PhoneAuthProvider.credential(verificationId, otp);
-//       await signInWithCredential(auth, credential);
-//       toast.success("সফলভাবে লগইন হয়েছে");
-//       // Redirect or update authentication state here
-//     } catch (error) {
-//       console.error("Error verifying OTP:", error);
-//       toast.error("ভুল ভেরিফিকেশন কোড");
-//     }
-//   };
-
-//   const handleGoogleLogin = async () => {
-//     try {
-//       const result = await signInWithPopup(auth, googleProvider);
-//       const user = result.user;
-//       console.log("Google User: ", user);
-//       // Proceed to phone verification if needed
-//       setStep("phone");
-//     } catch (error) {
-//       console.error("Google login error: ", error);
-//       toast.error("Google login failed");
-//     }
-//   };
-
-//   const handleFacebookLogin = async () => {
-//     try {
-//       const result = await signInWithPopup(auth, facebookProvider);
-//       const user = result.user;
-//       console.log("Facebook User: ", user);
-//       // Proceed to phone verification if needed
-//       setStep("phone");
-//     } catch (error) {
-//       console.error("Facebook login error: ", error);
-//       toast.error("Facebook login failed");
-//     }
-//   };
-
-//   useEffect(() => {
-//     if (step === "phone" && typeof window !== "undefined") {
-//       setTimeout(() => {
-//         setupRecaptcha("recaptcha-container");
-//       }, 500); // 500ms delay
-//     }
-//   }, [step]);
-
-//   return (
-//     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 px-4">
-//       <div id="recaptcha-container" className="bg-red-100 w-4 h-4"></div>
-//       {step === "phone" ? (
-//         <PhoneInputForm onSubmit={handlePhoneSubmit} />
-//       ) : step === "otp" ? (
-//         <OtpVerificationForm phone={phone} onVerify={handleOtpVerify} />
-//       ) : (
-//         <div className="flex flex-col space-y-4">
-//           <Button
-//             className="bg-blue-600 text-white"
-//             onClick={handleGoogleLogin}
-//           >
-//             Login with Google
-//           </Button>
-//           <Button
-//             className="bg-blue-800 text-white"
-//             onClick={handleFacebookLogin}
-//           >
-//             Login with Facebook
-//           </Button>
-//           <Button
-//             className="bg-green-600 text-white"
-//             onClick={() => setStep("phone")}
-//           >
-//             Login with Phone Number
-//           </Button>
-//         </div>
-//       )}
-//     </div>
-//   );
-// }
-
 "use client";
 
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
 import {
-  auth,
-  RecaptchaVerifier,
-  signInWithPhoneNumber,
-} from "../../../firebase.config";
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
 
-export default function PhoneAuth() {
-  const [phone, setPhone] = useState("");
-  const [otp, setOtp] = useState("");
-  const [confirmationResult, setConfirmationResult] = useState<any>(null);
+import { Icons } from "@/components/ui/icons";
+import { auth, googleProvider } from "@/firebase.config";
+import { signInWithPopup } from "firebase/auth";
 
-  const sendOTP = async () => {
+const formSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  rememberMe: z.boolean().default(false),
+});
+
+export default function LoginPage() {
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      rememberMe: false,
+    },
+  });
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true);
     try {
-      window.recaptchaVerifier = new RecaptchaVerifier(
-        auth,
-        "recaptcha-container",
-        {
-          size: "invisible",
-        }
-      );
-
-      const confirmation = await signInWithPhoneNumber(
-        auth,
-        phone,
-        window.recaptchaVerifier
-      );
-      console.log("Confirmation Result:", confirmation);
-      setConfirmationResult(confirmation);
-      alert("OTP Sent!");
+      // Handle login logic here
+      console.log(values);
     } catch (error) {
-      console.error("Error sending OTP:", error);
+      console.error(error);
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }
 
-  const verifyOTP = async () => {
+  const handleGoogleLogin = async () => {
     try {
-      if (confirmationResult) {
-        const result = await confirmationResult.confirm(otp);
-        const user = result.user;
-        console.log("User verified:", user);
-      }
+      await signInWithPopup(auth, googleProvider);
+      // Redirect or perform actions after successful login
     } catch (error) {
-      console.error("Error verifying OTP:", error);
+      console.error("Google login error", error);
     }
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-lg font-bold">Phone Authentication</h2>
-      <input
-        type="text"
-        placeholder="+8801234567890"
-        value={phone}
-        onChange={(e) => setPhone(e.target.value)}
-        className="border p-2 rounded"
-      />
-      <button
-        onClick={sendOTP}
-        className="bg-blue-500 text-white px-4 py-2 rounded ml-2"
-      >
-        Send OTP
-      </button>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Welcome back
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Please sign in to your account
+          </p>
+        </div>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="mt-8 space-y-6"
+          >
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email address</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder="Enter your email"
+                      {...field}
+                      className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-      <input
-        type="text"
-        placeholder="Enter OTP"
-        value={otp}
-        onChange={(e) => setOtp(e.target.value)}
-        className="border p-2 rounded mt-2"
-      />
-      <button
-        onClick={verifyOTP}
-        className="bg-green-500 text-white px-4 py-2 rounded ml-2"
-      >
-        Verify OTP
-      </button>
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Enter your password"
+                        {...field}
+                        className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-5 w-5 text-gray-400" />
+                        ) : (
+                          <Eye className="h-5 w-5 text-gray-400" />
+                        )}
+                      </button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-      <div id="recaptcha-container"></div>
+            <div className="flex items-center justify-between">
+              <FormField
+                control={form.control}
+                name="rememberMe"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center space-x-2">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormLabel className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                      Remember me
+                    </FormLabel>
+                  </FormItem>
+                )}
+              />
+
+              <Link
+                href="/forgot-password"
+                className="text-sm font-medium text-primary hover:text-primary/90"
+              >
+                Forgot password?
+              </Link>
+            </div>
+
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Signing in..." : "Sign in"}
+            </Button>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  Or continue with
+                </span>
+              </div>
+            </div>
+
+            <Button
+              variant="outline"
+              type="button"
+              disabled={isLoading}
+              onClick={handleGoogleLogin}
+              className="w-full"
+            >
+              {isLoading ? (
+                <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Icons.google className="mr-2 h-4 w-4" />
+              )}
+              Google
+            </Button>
+
+            <p className="text-center text-sm">
+              Don&apos;t have an account?{" "}
+              <Link
+                href="/register"
+                className="font-medium text-primary hover:text-primary/90"
+              >
+                Sign up
+              </Link>
+            </p>
+          </form>
+        </Form>
+      </div>
     </div>
   );
 }
