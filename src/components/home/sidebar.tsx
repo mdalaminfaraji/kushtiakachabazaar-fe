@@ -44,18 +44,17 @@ const Sidebar = () => {
           {activeCategory && (
             <div className="p-4">
               <h3 className="font-medium text-xl mb-4 text-primary">
-                {
-                  categories.find((cat) => cat.id === activeCategory)?.name_bn
-                }
+                {categories.find((cat) => cat.id === activeCategory)?.name_bn}
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {categories
                   .find((cat) => cat.id === activeCategory)
                   ?.subCategories.map((subcat) => (
                     <Link
-                      href={`/category/${categories.find(
-                        (cat) => cat.id === activeCategory
-                      )?.slug}/${subcat.slug}`}
+                      href={`/category/${
+                        categories.find((cat) => cat.id === activeCategory)
+                          ?.slug
+                      }/${subcat.slug}`}
                       key={subcat.id}
                     >
                       <Card className="overflow-hidden hover:shadow-md transition group">
