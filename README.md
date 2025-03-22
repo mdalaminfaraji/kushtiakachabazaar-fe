@@ -1,37 +1,202 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# KushtiakaChabazaar (কুষ্টিয়াকাছাবাজার)
 
-## Getting Started
+<div align="center">
+  <img src="public/images/logo.png" alt="Kushtiaka Chabazaar Logo" width="200" />
+  <p>A comprehensive e-commerce platform for grocery and daily necessities</p>
+  
+  ![Next.js](https://img.shields.io/badge/Next.js-13.0+-000000?style=for-the-badge&logo=next.js&logoColor=white)
+  ![TypeScript](https://img.shields.io/badge/TypeScript-4.9+-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+  ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.0+-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+  ![Prisma](https://img.shields.io/badge/Prisma-4.0+-2D3748?style=for-the-badge&logo=prisma&logoColor=white)
+</div>
 
-First, run the development server:
+## 📋 Overview
+
+KushtiakaChabazaar is a modern, bilingual (Bengali/English) e-commerce platform designed to provide a seamless shopping experience for groceries and daily necessities. The platform features a comprehensive product categorization system, user-friendly navigation, and a robust checkout process.
+
+## ✨ Features
+
+### 🛒 E-commerce
+
+- **Multi-level Category Navigation**: Three-level hierarchical category structure
+- **Product Display**: Rich product cards with pricing, images, and add-to-cart functionality
+- **Flash Sales**: Highlighted discounted products
+- **Popular Products**: Featured trending items
+- **Filtering & Sorting**: Advanced product filtering by category, price, and other attributes
+- **Search**: Powerful search functionality across products
+- **Cart & Checkout**: Streamlined shopping cart and checkout process
+
+### ✍️ Blog System
+
+- **Featured Posts**: Showcase important articles
+- **Category Filtering**: Filter blog posts by topics
+- **Search Functionality**: Search across all blog content
+- **Tagging System**: Organize content with relevant tags
+- **Related Posts**: Show related content to users
+- **Social Sharing**: Easy sharing to social platforms
+
+### 👥 User Experience
+
+- **Responsive Design**: Optimized for all device sizes
+- **Bilingual Support**: Complete Bengali and English language support
+- **Breadcrumb Navigation**: Clear indication of user location
+- **Grid & List Views**: Multiple product display options
+- **Accessibility**: Designed with accessibility in mind
+
+## 🔧 Technologies
+
+- **Frontend**:
+
+  - Next.js 13+ (App Router)
+  - TypeScript
+  - Tailwind CSS
+  - Shadcn UI Components
+  - Lucide Icons
+  - React Hook Form
+
+- **Backend**:
+  - Node.js
+  - Express
+  - MongoDB
+  - JWT for authentication
+  - SMS integration for order notifications
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js 18.0.0 or higher
+- npm or yarn
+- Git
+
+### Installation
+
+1. Clone the repository
+
+```bash
+git clone https://github.com/mdalaminfaraji/kushtiakachabazaar-fe.git
+cd kushtiakachabazaar-fe
+```
+
+2. Install dependencies
+
+```bash
+npm install
+# or
+yarn install
+```
+
+3. Set up environment variables
+
+```bash
+cp .env.example .env.local
+```
+
+Edit `.env.local` and add your configuration
+
+4. Run the development server
 
 ```bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+5. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📁 Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+kushtiakachabazaar-fe/
+├── public/               # Static assets
+├── src/
+│   ├── app/              # App router pages
+│   │   ├── (mainlayout)/ # Pages with main layout
+│   │   └── admin/        # Admin dashboard pages
+│   ├── components/       # Reusable components
+│   │   ├── home/         # Homepage specific components
+│   │   ├── shared/       # Shared components used across the app
+│   │   └── ui/           # UI library components
+│   ├── data/             # Static data (categories, products, blogs)
+│   ├── hooks/            # Custom React hooks
+│   ├── lib/              # Utility functions and libraries
+│   ├── providers/        # Context providers
+│   ├── services/         # API service functions
+│   ├── styles/           # Global styles
+│   ├── types/            # TypeScript type definitions
+│   └── utils/            # Helper functions
+└── next.config.js        # Next.js configuration
+```
 
-## Learn More
+## 🔄 API Integration
 
-To learn more about Next.js, take a look at the following resources:
+The frontend connects to a separate backend service. For API documentation and setup instructions, please refer to the [Backend Repository](https://github.com/mdalaminfaraji/kushtiakachabazaar).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📱 Responsive Design
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The application is fully responsive and optimized for:
 
-## Deploy on Vercel
+- Desktop (1200px+)
+- Tablet (768px - 1199px)
+- Mobile (320px - 767px)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🛠️ Development
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# kushtiakachabazaar-fe
+### Code Style
+
+This project uses ESLint and Prettier for code formatting:
+
+```bash
+# Run linter
+npm run lint
+
+# Format code
+npm run format
+```
+
+### Building for Production
+
+```bash
+npm run build
+# or
+yarn build
+```
+
+## 🚢 Deployment
+
+This project can be deployed to various platforms:
+
+### Vercel (Recommended)
+
+```bash
+npm run deploy:vercel
+```
+
+### Netlify
+
+```bash
+npm run deploy:netlify
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 👥 Team
+
+- **Md. Alamin Farajee** - _Lead Developer_ - [GitHub](https://github.com/mdalaminfaraji)
+
+## 🙏 Acknowledgments
+
+- Images and product data are for demonstration purposes only
+- Special thanks to all contributors and supporters
