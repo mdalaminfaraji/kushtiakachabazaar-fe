@@ -1,6 +1,17 @@
 "use client";
-import { useEffect, useState } from "react";
+
+import React from "react";
 import Image from "next/image";
+import { Card } from "@/components/ui/card";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
+
 const heroProducts = [
   {
     id: 1,
@@ -23,61 +34,42 @@ const heroProducts = [
     alt: "Cooking Oil",
   },
 ];
+
 export const Slider = () => {
-  const [currentImage, setCurrentImage] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+  const plugin = React.useRef(
+    Autoplay({ delay: 5000, stopOnInteraction: true })
+  );
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentImage((prev) => (prev + 1) % heroProducts.length);
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, []);
   return (
-    <div className="relative h-[300px] md:h-[400px] lg:h-[500px] z-10">
-      {isLoading ? (
-        <div className="w-full h-full animate-pulse bg-muted rounded-lg" />
-      ) : (
-        <>
-          {heroProducts.map((product, index) => (
-            <div
-              key={product.id}
-              className={`absolute inset-0 transition-opacity duration-1000 ${
-                index === currentImage ? "opacity-100" : "opacity-0"
-              }`}
-            >
-              <Image
-                src={product.image}
-                alt={product.alt}
-                fill
-                className="object-contain z-0"
-                priority={index === 0}
-              />
+    <Carousel
+      plugins={[plugin.current]}
+      className="w-full max-w-screen-2xl mx-auto relative h-[300px] md:h-[400px] lg:h-[500px] -z-10"
+      opts={{
+        align: "start",
+        loop: true,
+      }}
+    >
+      <CarouselContent>
+        {heroProducts.map((product, index) => (
+          <CarouselItem key={product.id} className="md:basis-1/1 lg:basis-1/1">
+            <div className="p-1">
+              <Card className="border-0">
+                <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg">
+                  <Image
+                    src={product.image}
+                    alt={product.alt}
+                    fill
+                    className="object-cover"
+                    priority={index === 0}
+                  />
+                </div>
+              </Card>
             </div>
-          ))}
-          {/* Dots indicator */}
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
-            {heroProducts.map((_, index) => (
-              <button
-                key={index}
-                className={`w-2 h-2 rounded-full transition-all ${
-                  index === currentImage ? "bg-primary w-4" : "bg-primary/50"
-                }`}
-                onClick={() => setCurrentImage(index)}
-              />
-            ))}
-          </div>
-        </>
-      )}
-    </div>
+          </CarouselItem>
+        ))}
+      </CarouselContent>
+      <CarouselPrevious className="hidden " />
+      <CarouselNext className="hidden " />
+    </Carousel>
   );
 };
