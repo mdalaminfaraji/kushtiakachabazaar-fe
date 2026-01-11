@@ -1,4 +1,4 @@
-# KushtiakaChabazaar (কুষ্টিয়াকাছাবাজার)
+# daily-market (কুষ্টিয়াকাছাবাজার)
 
 <div align="center">
   <img src="public/images/logo.png" alt="Kushtiaka Chabazaar Logo" width="200" />
@@ -12,7 +12,7 @@
 
 ## 📋 Overview
 
-KushtiakaChabazaar is a modern, bilingual (Bengali/English) e-commerce platform designed to provide a seamless shopping experience for groceries and daily necessities. The platform features a comprehensive product categorization system, user-friendly navigation, and a robust checkout process.
+daily-market is a modern, bilingual (Bengali/English) e-commerce platform designed to provide a seamless shopping experience for groceries and daily necessities. The platform features a comprehensive product categorization system, user-friendly navigation, and a robust checkout process.
 
 ## ✨ Features
 
@@ -74,8 +74,8 @@ KushtiakaChabazaar is a modern, bilingual (Bengali/English) e-commerce platform 
 1. Clone the repository
 
 ```bash
-git clone https://github.com/mdalaminfaraji/kushtiakachabazaar-fe.git
-cd kushtiakachabazaar-fe
+git clone https://github.com/mdalaminfaraji/daily-market-fe.git
+cd daily-market-fe
 ```
 
 2. Install dependencies
@@ -107,7 +107,7 @@ yarn dev
 ## 📁 Project Structure
 
 ```
-kushtiakachabazaar-fe/
+daily-market-fe/
 ├── public/               # Static assets
 ├── src/
 │   ├── app/              # App router pages
@@ -130,7 +130,7 @@ kushtiakachabazaar-fe/
 
 ## 🔄 API Integration
 
-The frontend connects to a separate backend service. For API documentation and setup instructions, please refer to the [Backend Repository](https://github.com/mdalaminfaraji/kushtiakachabazaar).
+The frontend connects to a separate backend service. For API documentation and setup instructions, please refer to the [Backend Repository](https://github.com/mdalaminfaraji/daily-market).
 
 ## 📱 Responsive Design
 

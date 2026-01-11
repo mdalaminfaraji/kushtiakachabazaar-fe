@@ -1,5 +1,5 @@
 import Banner from "@/components/home/banner";
-// import VegetableOrder from "@/components/order-receipt/vegetableOrder";
+import VegetableOrder from "@/components/order-receipt/vegetableOrder";
 import FlashSale from "@/components/home/flash-sale";
 import PopularProducts from "@/components/home/popular-products";
 import Sidebar from "@/components/home/sidebar";
@@ -25,7 +25,7 @@ export default function Home() {
         <Separator className="my-8" />
         <PopularProducts />
       </div>
-      {/* <VegetableOrder /> */}
+      <VegetableOrder />
     </main>
   );
 }

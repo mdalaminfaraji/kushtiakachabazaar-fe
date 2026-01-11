@@ -47,7 +47,7 @@ const contactInfo = [
   {
     icon: <Mail className="w-6 h-6" />,
     title: "ইমেইল",
-    info: "info@kushtiakachabazaar.com",
+    info: "info@daily-market.com",
     description: "যেকোনো সময় মেইল করুন",
   },
   {
