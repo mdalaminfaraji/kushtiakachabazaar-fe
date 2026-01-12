@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import ChatBot from "@/components/common/ChatBot";
 import { Toaster } from "sonner";
+import ApolloWrapper from "@/lib/apollo-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,7 +38,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <div suppressHydrationWarning>
+            <ApolloWrapper>
             {children}
+            </ApolloWrapper>
             <ChatBot />
             <Toaster position="top-right" />
           </div>

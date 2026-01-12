@@ -23,10 +23,14 @@ import {
   TabsTrigger
 } from "@/components/ui/tabs";
 
+import { GET_BLOGS } from "@/graphql/blogs/query/blogsQuery";
+import { useQuery } from "@apollo/client/react";
+
 export default function BlogPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const featuredPosts = blogPosts.filter((post) => post.featured);
+  const { data, loading, error } = useQuery(GET_BLOGS);
 
   // Format date to Bengali format
   const formatDate = (dateString: string) => {
@@ -64,6 +68,11 @@ export default function BlogPage() {
 
     setFilteredPosts(filtered);
   }, [searchTerm, selectedCategory]);
+
+  
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
+  console.log(data);
 
   return (
     <div className="container mx-auto px-4 py-8">
