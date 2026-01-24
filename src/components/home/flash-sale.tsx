@@ -1,11 +1,16 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { products } from "@/data/products";
+import { useQuery } from "@apollo/client/react";
+import { GET_PRODUCTS } from "@/graphql/products/query/productQuery";
 import ProductCard from "@/components/shared/product-card";
+import { Loader2 } from "lucide-react";
+
+import { Product } from "@/types";
 
 const FlashSale = () => {
-  const flashSaleProducts = products.filter((product) => product.isFlashSale);
+  const { data, loading, error } = useQuery<{ products: Product[] }>(GET_PRODUCTS);
+
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -13,8 +18,15 @@ const FlashSale = () => {
     seconds: 0,
   });
 
+  const flashSaleProducts = React.useMemo(() => 
+    data?.products?.filter((product: Product) => product.isFlashSale) || [],
+    [data]
+  );
+
   useEffect(() => {
-    // Set a common end date for the flash sale
+    if (flashSaleProducts.length === 0) return;
+
+    // Set a common end date for the flash sale from the first product
     const endDate = new Date(flashSaleProducts[0]?.flashSaleEndDate || "");
 
     const calculateTimeLeft = () => {
@@ -28,6 +40,8 @@ const FlashSale = () => {
           minutes: Math.floor((difference / 1000 / 60) % 60),
           seconds: Math.floor((difference / 1000) % 60),
         });
+      } else {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
       }
     };
 
@@ -36,6 +50,18 @@ const FlashSale = () => {
 
     return () => clearInterval(timer);
   }, [flashSaleProducts]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="animate-spin text-primary" size={32} />
+      </div>
+    );
+  }
+
+  if (error || flashSaleProducts.length === 0) {
+    return null; // Don't show flash sale section if no products or error
+  }
 
   const formatTime = (time: number) => {
     return time < 10 ? `0${time}` : time;
@@ -71,8 +97,8 @@ const FlashSale = () => {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-        {flashSaleProducts.map((product) => (
-          <ProductCard key={product.id} product={product} />
+        {flashSaleProducts.map((product: Product) => (
+          <ProductCard key={product.documentId} product={product} />
         ))}
       </div>
     </div>
@@ -80,3 +106,4 @@ const FlashSale = () => {
 };
 
 export default FlashSale;
+

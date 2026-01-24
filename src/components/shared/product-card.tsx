@@ -3,37 +3,52 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Product } from "@/data/products";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Heart } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+
+import { Product } from "@/types";
 
 interface ProductCardProps {
   product: Product;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  const discountPercentage = product.discountPrice
+  const price = product.price;
+  const discountPrice = product.discountPrice;
+  const name_bn = product.name_bn;
+  const slug = product.slug;
+  const unit = product.unit;
+  const isFlashSale = product.isFlashSale;
+
+  // Handle both static path and GraphQL image object
+  const imageUrl = typeof product.image === 'string' 
+    ? product.image 
+    : product.image?.url 
+      ? `${process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337'}${product.image.url}`
+      : "/images/placeholder.jpg";
+
+  const discountPercentage = discountPrice
     ? Math.round(
-        ((product.price - product.discountPrice) / product.price) * 100
+        ((price - discountPrice) / price) * 100
       )
     : 0;
 
   return (
     <Card className="overflow-hidden group hover:shadow-md transition">
       <div className="relative">
-        <Link href={`/product/${product.slug}`}>
+        <Link href={`/product/${slug}`}>
           <div className="relative h-48 w-full overflow-hidden">
             <Image
-              src={product.image}
-              alt={product.name}
+              src={imageUrl}
+              alt={product.name || ""}
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-300"
             />
           </div>
         </Link>
-        {product.isFlashSale && (
+        {isFlashSale && (
           <Badge className="absolute top-2 left-2 bg-red-500 hover:bg-red-600">
             ফ্ল্যাশ সেল
           </Badge>
@@ -53,25 +68,25 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       </div>
 
       <div className="p-3 space-y-2">
-        <Link href={`/product/${product.slug}`}>
+        <Link href={`/product/${slug}`}>
           <h3 className="font-medium text-sm line-clamp-2 group-hover:text-primary transition-colors">
-            {product.name_bn}
+            {name_bn}
           </h3>
         </Link>
 
         <div className="flex justify-between items-center">
           <div>
-            {product.discountPrice ? (
+            {discountPrice ? (
               <div className="flex items-center gap-2">
-                <span className="font-bold">৳ {product.discountPrice}</span>
+                <span className="font-bold">৳ {discountPrice}</span>
                 <span className="text-gray-400 text-sm line-through">
-                  ৳ {product.price}
+                  ৳ {price}
                 </span>
               </div>
             ) : (
-              <span className="font-bold">৳ {product.price}</span>
+              <span className="font-bold">৳ {price}</span>
             )}
-            <div className="text-xs text-gray-500">{product.unit}</div>
+            <div className="text-xs text-gray-500">{unit}</div>
           </div>
           <Button size="sm" variant="outline" className="h-8 w-8 p-0">
             <ShoppingCart className="h-4 w-4" />
@@ -83,3 +98,4 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 };
 
 export default ProductCard;
+
