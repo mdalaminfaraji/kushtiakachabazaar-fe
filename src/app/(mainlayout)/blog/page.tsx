@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Search, Calendar, Tag, ArrowRight } from "lucide-react";
-import { blogPosts, blogCategories, blogTags } from "@/data/blogs";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -23,14 +22,29 @@ import {
   TabsTrigger
 } from "@/components/ui/tabs";
 
-import { GET_BLOGS } from "@/graphql/blogs/query/blogsQuery";
+import { GET_BLOGS, GET_BLOG_CATEGORIES, GET_BLOG_TAGS } from "@/graphql/blogs/query/blogsQuery";
 import { useQuery } from "@apollo/client/react";
+import type { Blog, BlogCategory, BlogTag, BlogsQueryResponse, BlogCategoriesQueryResponse, BlogTagsQueryResponse, BlogImage } from "@/types/blog";
 
 export default function BlogPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const featuredPosts = blogPosts.filter((post) => post.featured);
-  const { data, loading, error } = useQuery(GET_BLOGS);
+  
+  // Fetch data from backend
+  const { data: blogsData, loading: blogsLoading, error: blogsError } = useQuery<BlogsQueryResponse>(GET_BLOGS);
+  const { data: categoriesData, loading: categoriesLoading } = useQuery<BlogCategoriesQueryResponse>(GET_BLOG_CATEGORIES);
+  const { data: tagsData, loading: tagsLoading } = useQuery<BlogTagsQueryResponse>(GET_BLOG_TAGS);
+
+  // Extract data from queries with useMemo to prevent re-renders
+  const blogPosts = React.useMemo(() => blogsData?.blogs || [], [blogsData]);
+  const blogCategories = React.useMemo(() => categoriesData?.blogCategories || [], [categoriesData]);
+  const blogTags = React.useMemo(() => tagsData?.blogTags || [], [tagsData]);
+
+  // Get featured posts
+  const featuredPosts = React.useMemo(() => 
+    blogPosts.filter((post: Blog) => post.featured),
+    [blogPosts]
+  );
 
   // Format date to Bengali format
   const formatDate = (dateString: string) => {
@@ -43,36 +57,60 @@ export default function BlogPage() {
     return date.toLocaleDateString("bn-BD", options);
   };
 
+  // Get image URL
+  const getImageUrl = (image?: BlogImage) => {
+    if (!image) return "/placeholder-blog.jpg";
+    return `${process.env.NEXT_PUBLIC_STRAPI_URL || "http://localhost:1337"}${image.url}`;
+  };
+
   // Filter posts based on search and category
-  const [filteredPosts, setFilteredPosts] = useState(blogPosts);
+  const [filteredPosts, setFilteredPosts] = useState<Blog[]>([]);
   useEffect(() => {
-    const filtered = blogPosts.filter((post) => {
+    const filtered = blogPosts.filter((post: Blog) => {
       const matchesSearch =
         searchTerm === "" ||
-        post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        post.title_bn.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        post.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        post.content_bn.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        post.tags.some((tag) =>
-          tag.toLowerCase().includes(searchTerm.toLowerCase())
-        ) ||
-        post.tags_bn.some((tag) =>
-          tag.toLowerCase().includes(searchTerm.toLowerCase())
+        post.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        post.title_bn?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        post.content?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        post.content_bn?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        post.tags?.some((tag: BlogTag) =>
+          tag.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          tag.name_bn?.toLowerCase().includes(searchTerm.toLowerCase())
         );
 
       const matchesCategory =
-        selectedCategory === null || post.category === selectedCategory;
+        selectedCategory === null || post.category?.name === selectedCategory;
 
       return matchesSearch && matchesCategory;
     });
 
     setFilteredPosts(filtered);
-  }, [searchTerm, selectedCategory]);
+  }, [searchTerm, selectedCategory, blogPosts]);
 
   
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error.message}</p>;
-  console.log(data);
+  if (blogsLoading || categoriesLoading || tagsLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-center items-center min-h-[400px]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-gray-600">লোড হচ্ছে...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  if (blogsError) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center py-12">
+          <h3 className="text-xl font-medium mb-2 text-red-600">ত্রুটি ঘটেছে</h3>
+          <p className="text-gray-600">{blogsError.message}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -104,28 +142,28 @@ export default function BlogPage() {
           নির্বাচিত নিবন্ধ
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {featuredPosts.map((post) => (
+          {featuredPosts.map((post: Blog) => (
             <Card
-              key={post.id}
+              key={post.documentId}
               className="overflow-hidden group hover:shadow-lg transition-shadow duration-300"
             >
               <Link href={`/blog/${post.slug}`}>
                 <div className="relative h-48 w-full overflow-hidden">
                   <Image
-                    src={post.image}
+                    src={getImageUrl(post.featuredImage)}
                     alt={post.title_bn}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute top-0 right-0 bg-primary text-white px-3 py-1 m-3 rounded-md text-sm">
-                    {post.category_bn}
+                    {post.category?.name_bn || 'সাধারণ'}
                   </div>
                 </div>
               </Link>
               <div className="p-5">
                 <div className="flex items-center text-gray-500 text-sm mb-3">
                   <Calendar className="w-4 h-4 mr-1" />
-                  <span className="mr-3">{formatDate(post.date)}</span>
+                  <span className="mr-3">{formatDate(post.publishedDate || post.createdAt || new Date().toISOString())}</span>
                   <span>{post.author_bn}</span>
                 </div>
                 <Link href={`/blog/${post.slug}`}>
@@ -175,9 +213,9 @@ export default function BlogPage() {
                 >
                   সকল
                 </TabsTrigger>
-                {blogCategories.map((category) => (
+                {blogCategories.map((category: BlogCategory) => (
                   <TabsTrigger
-                    key={category.name}
+                    key={category.documentId}
                     value={category.name}
                     onClick={() => setSelectedCategory(category.name)}
                     className="mb-2"
@@ -199,15 +237,15 @@ export default function BlogPage() {
           {/* Blog Posts Grid */}
           {filteredPosts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {filteredPosts.map((post) => (
+              {filteredPosts.map((post: Blog) => (
                 <Card
-                  key={post.id}
+                  key={post.documentId}
                   className="overflow-hidden group hover:shadow-md transition-shadow"
                 >
                   <Link href={`/blog/${post.slug}`}>
                     <div className="relative h-48 w-full overflow-hidden">
                       <Image
-                        src={post.image}
+                        src={getImageUrl(post.featuredImage)}
                         alt={post.title_bn}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -217,11 +255,11 @@ export default function BlogPage() {
                   <div className="p-5">
                     <div className="flex justify-between items-center mb-3">
                       <Badge variant="outline" className="bg-primary/10">
-                        {post.category_bn}
+                        {post.category?.name_bn || 'সাধারণ'}
                       </Badge>
                       <div className="text-gray-500 text-sm flex items-center">
                         <Calendar className="w-3 h-3 mr-1" />
-                        {formatDate(post.date)}
+                        {formatDate(post.publishedDate || post.createdAt || new Date().toISOString())}
                       </div>
                     </div>
                     <Link href={`/blog/${post.slug}`}>
@@ -288,8 +326,8 @@ export default function BlogPage() {
                     সকল ক্যাটাগরি
                   </button>
                 </li>
-                {blogCategories.map((category) => (
-                  <li key={category.name}>
+                {blogCategories.map((category: BlogCategory) => (
+                  <li key={category.documentId}>
                     <button
                       onClick={() => setSelectedCategory(category.name)}
                       className={`w-full text-left px-3 py-2 rounded hover:bg-gray-100 transition ${
@@ -313,21 +351,21 @@ export default function BlogPage() {
             </div>
             <div className="p-4">
               <ul className="space-y-4">
-                {blogPosts
+                {[...blogPosts]
                   .sort(
-                    (a, b) =>
-                      new Date(b.date).getTime() - new Date(a.date).getTime()
+                    (a: Blog, b: Blog) =>
+                      new Date(b.publishedDate || b.createdAt || '').getTime() - new Date(a.publishedDate || a.createdAt || '').getTime()
                   )
                   .slice(0, 5)
-                  .map((post) => (
-                    <li key={post.id}>
+                  .map((post: Blog) => (
+                    <li key={post.documentId}>
                       <Link
                         href={`/blog/${post.slug}`}
                         className="flex items-start gap-3 group"
                       >
                         <div className="relative w-16 h-16 flex-shrink-0 rounded overflow-hidden">
                           <Image
-                            src={post.image}
+                            src={getImageUrl(post.featuredImage)}
                             alt={post.title_bn}
                             fill
                             className="object-cover"
@@ -339,7 +377,7 @@ export default function BlogPage() {
                           </h3>
                           <div className="text-xs text-gray-500 mt-1 flex items-center">
                             <Calendar className="w-3 h-3 mr-1" />
-                            {formatDate(post.date)}
+                            {formatDate(post.publishedDate || post.createdAt || new Date().toISOString())}
                           </div>
                         </div>
                       </Link>
@@ -356,9 +394,9 @@ export default function BlogPage() {
             </div>
             <div className="p-4">
               <div className="flex flex-wrap gap-2">
-                {blogTags.map((tag) => (
+                {blogTags.map((tag: BlogTag) => (
                   <Badge
-                    key={tag.name}
+                    key={tag.documentId}
                     variant="outline"
                     className="cursor-pointer hover:bg-primary/10 transition-colors"
                     onClick={() => setSearchTerm(tag.name)}

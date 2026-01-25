@@ -8,16 +8,13 @@ import { GET_CATEGORIES } from "@/graphql/categories/query/categoryQuery";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
 import { ChevronRight, ArrowLeft, Loader2 } from "lucide-react";
-
-import { Category, SubCategory, ChildCategory } from "@/types";
+import { Category, ChildCategory, SubCategory } from "@/types";
 
 const Sidebar = () => {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [activeSubcategory, setActiveSubcategory] = useState<string | null>(null);
 
   const { data, loading, error } = useQuery<{ categories: Category[] }>(GET_CATEGORIES);
-
-
 
   const categories = data?.categories || [];
 

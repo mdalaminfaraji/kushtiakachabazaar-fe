@@ -3,9 +3,11 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import Head from "next/head";
 import { Calendar, Tag, User, Clock, ArrowLeft, Share2 } from "lucide-react";
-import { blogPosts, blogCategories } from "@/data/blogs";
+import { GET_BLOG, GET_BLOGS } from "@/graphql/blogs/query/blogsQuery";
+import { useQuery } from "@apollo/client/react";
+import type { Blog, BlogImage, BlogTag, BlogQueryResponse, BlogsQueryResponse } from "@/types/blog";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -28,18 +30,19 @@ interface BlogPostPageProps {
 export default function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = params;
 
-  // Find the blog post by slug
-  const post = blogPosts.find((post) => post.slug === slug);
+  // Fetch the specific blog post
+  const { data, loading, error } = useQuery<BlogQueryResponse>(GET_BLOG, {
+    variables: { slug },
+  });
 
-  // If post not found, return 404
-  if (!post) {
-    notFound();
-  }
+  // Fetch all blogs for related posts
+  const { data: allBlogsData } = useQuery<BlogsQueryResponse>(GET_BLOGS);
 
-  // Get related posts (same category, excluding current post)
-  const relatedPosts = blogPosts
-    .filter((p) => p.category === post.category && p.id !== post.id)
-    .slice(0, 3);
+  // Get image URL
+  const getImageUrl = (image?: BlogImage) => {
+    if (!image) return "/placeholder-blog.jpg";
+    return `${process.env.NEXT_PUBLIC_STRAPI_URL || "http://localhost:1337"}${image.url}`;
+  };
 
   // Format date to Bengali format
   const formatDate = (dateString: string) => {
@@ -59,9 +62,81 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
     return readingTime;
   };
 
-  const readingTime = calculateReadingTime(post.content_bn);
+  // Loading state
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-center items-center min-h-[400px]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-gray-600">লোড হচ্ছে...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center py-12">
+          <h3 className="text-xl font-medium mb-2 text-red-600">ত্রুটি ঘটেছে</h3>
+          <p className="text-gray-600">{error.message}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Get the blog post
+  const post = data?.blogs?.[0];
+
+  // If post not found
+  if (!post) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center py-12">
+          <h3 className="text-xl font-medium mb-2">নিবন্ধ পাওয়া যায়নি</h3>
+          <p className="text-gray-600 mb-4">দুঃখিত, এই নিবন্ধটি খুঁজে পাওয়া যায়নি।</p>
+          <Link href="/blog">
+            <Button>সকল ব্লগে ফিরে যান</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Get related posts (same category, excluding current post)
+  const allBlogs = allBlogsData?.blogs || [];
+  const relatedPosts = [...allBlogs]
+    .filter((p: Blog) => p.category?.documentId === post.category?.documentId && p.documentId !== post.documentId)
+    .slice(0, 3);
+
+  const readingTime = post.readingTime || calculateReadingTime(post.content_bn || "");
 
   return (
+    <>
+      <Head>
+        <title>{post.title_bn} | কুষ্টিয়াকা ছাবাজার ব্লগ</title>
+        <meta name="description" content={post.excerpt_bn || post.excerpt} />
+        <meta name="keywords" content={`${post.category?.name_bn}, ${post.tags?.map(t => t.name_bn).join(', ')}, শীতকালীন সবজি, স্বাস্থ্য টিপস`} />
+        
+        {/* Open Graph */}
+        <meta property="og:title" content={post.title_bn} />
+        <meta property="og:description" content={post.excerpt_bn || post.excerpt} />
+        <meta property="og:type" content="article" />
+        {post.featuredImage && (
+          <meta property="og:image" content={getImageUrl(post.featuredImage)} />
+        )}
+        
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={post.title_bn} />
+        <meta name="twitter:description" content={post.excerpt_bn || post.excerpt} />
+        {post.featuredImage && (
+          <meta name="twitter:image" content={getImageUrl(post.featuredImage)} />
+        )}
+      </Head>
     <div className="container mx-auto px-4 py-8">
       {/* Breadcrumb */}
       <Breadcrumb className="mb-6">
@@ -95,7 +170,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
             {/* Featured Image */}
             <div className="relative h-[300px] md:h-[400px] w-full">
               <Image
-                src={post.image}
+                src={getImageUrl(post.featuredImage)}
                 alt={post.title_bn}
                 fill
                 priority
@@ -103,7 +178,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
               />
               <div className="absolute top-4 right-4">
                 <Badge className="bg-primary text-white px-3 py-1">
-                  {post.category_bn}
+                  {post.category?.name_bn || 'সাধারণ'}
                 </Badge>
               </div>
             </div>
@@ -118,7 +193,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
               <div className="flex flex-wrap gap-4 text-gray-500 mb-6">
                 <div className="flex items-center">
                   <Calendar className="w-4 h-4 mr-2" />
-                  <span>{formatDate(post.date)}</span>
+                  <span>{formatDate(post.publishedDate || post.createdAt || new Date().toISOString())}</span>
                 </div>
                 <div className="flex items-center">
                   <User className="w-4 h-4 mr-2" />
@@ -132,30 +207,33 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
 
               {/* Content */}
               <div className="prose prose-lg max-w-none mb-8">
-                {post.content_bn.split("\n").map((paragraph, index) => (
+                <div dangerouslySetInnerHTML={{ __html: post.content_bn || "" }} />
+                {/* {post.content_bn?.split("\n").map((paragraph: string, index: number) => (
                   <p key={index} className="mb-4 text-gray-800 leading-relaxed">
                     {paragraph}
                   </p>
-                ))}
+                ))} */}
               </div>
 
               {/* Tags */}
-              <div className="mb-6">
-                <h3 className="text-lg font-medium mb-3">ট্যাগ:</h3>
-                <div className="flex flex-wrap gap-2">
-                  {post.tags_bn.map((tag, index) => (
-                    <Link href={`/blog?tag=${post.tags[index]}`} key={index}>
-                      <Badge
-                        variant="outline"
-                        className="hover:bg-primary/10 transition-colors cursor-pointer"
-                      >
-                        <Tag className="w-3 h-3 mr-1" />
-                        {tag}
-                      </Badge>
-                    </Link>
-                  ))}
+              {post.tags && post.tags.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-medium mb-3">ট্যাগ:</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {post.tags.map((tag: BlogTag) => (
+                      <Link href={`/blog?tag=${tag.slug}`} key={tag.documentId}>
+                        <Badge
+                          variant="outline"
+                          className="hover:bg-primary/10 transition-colors cursor-pointer"
+                        >
+                          <Tag className="w-3 h-3 mr-1" />
+                          {tag.name_bn}
+                        </Badge>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Share */}
               <div className="flex items-center gap-4">
@@ -223,12 +301,12 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
             <div className="mt-12">
               <h2 className="text-2xl font-bold mb-6">সম্পর্কিত নিবন্ধ</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {relatedPosts.map((relatedPost) => (
-                  <Link href={`/blog/${relatedPost.slug}`} key={relatedPost.id}>
+                {relatedPosts.map((relatedPost: Blog) => (
+                  <Link href={`/blog/${relatedPost.slug}`} key={relatedPost.documentId}>
                     <Card className="overflow-hidden group h-full hover:shadow-md transition-shadow">
                       <div className="relative h-48 w-full overflow-hidden">
                         <Image
-                          src={relatedPost.image}
+                          src={getImageUrl(relatedPost.featuredImage)}
                           alt={relatedPost.title_bn}
                           fill
                           className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -236,7 +314,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                       </div>
                       <div className="p-4">
                         <div className="text-sm text-gray-500 mb-2">
-                          {formatDate(relatedPost.date)}
+                          {formatDate(relatedPost.publishedDate || relatedPost.createdAt || new Date().toISOString())}
                         </div>
                         <h3 className="font-medium group-hover:text-primary transition-colors line-clamp-2">
                           {relatedPost.title_bn}
@@ -280,22 +358,16 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
             </div>
             <div className="p-4">
               <ul className="space-y-2">
-                {blogCategories.map((category) => (
-                  <li key={category.name}>
+                {post.category && (
+                  <li>
                     <Link
-                      href={`/blog?category=${category.name}`}
+                      href={`/blog?category=${post.category.slug}`}
                       className="flex items-center justify-between px-3 py-2 rounded hover:bg-gray-100 transition"
                     >
-                      <span>{category.name_bn}</span>
-                      <span className="text-gray-500 text-sm">
-                        {
-                          blogPosts.filter((p) => p.category === category.name)
-                            .length
-                        }
-                      </span>
+                      <span>{post.category.name_bn}</span>
                     </Link>
                   </li>
-                ))}
+                )}
               </ul>
             </div>
           </Card>
@@ -307,22 +379,22 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
             </div>
             <div className="p-4">
               <ul className="space-y-4">
-                {blogPosts
-                  .filter((p) => p.id !== post.id)
+                {[...allBlogs]
+                  .filter((p: Blog) => p.documentId !== post.documentId)
                   .sort(
-                    (a, b) =>
-                      new Date(b.date).getTime() - new Date(a.date).getTime()
+                    (a: Blog, b: Blog) =>
+                      new Date(b.publishedDate || b.createdAt || '').getTime() - new Date(a.publishedDate || a.createdAt || '').getTime()
                   )
                   .slice(0, 5)
-                  .map((recentPost) => (
-                    <li key={recentPost.id}>
+                  .map((recentPost: Blog) => (
+                    <li key={recentPost.documentId}>
                       <Link
                         href={`/blog/${recentPost.slug}`}
                         className="flex items-start gap-3 group"
                       >
                         <div className="relative w-16 h-16 flex-shrink-0 rounded overflow-hidden">
                           <Image
-                            src={recentPost.image}
+                            src={getImageUrl(recentPost.featuredImage)}
                             alt={recentPost.title_bn}
                             fill
                             className="object-cover"
@@ -334,7 +406,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                           </h3>
                           <div className="text-xs text-gray-500 mt-1 flex items-center">
                             <Calendar className="w-3 h-3 mr-1" />
-                            {formatDate(recentPost.date)}
+                            {formatDate(recentPost.publishedDate || recentPost.createdAt || new Date().toISOString())}
                           </div>
                         </div>
                       </Link>
@@ -346,5 +418,6 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
         </div>
       </div>
     </div>
+    </>
   );
 }
