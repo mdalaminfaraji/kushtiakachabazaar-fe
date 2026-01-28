@@ -53,9 +53,9 @@ const Navbar = () => {
                   height={50}
                 />
                 <span className="text-xl font-bold hidden sm:inline-block">
-                  Kushtia Kachabazaar
+                  Daily Market
                 </span>
-                <span className="text-xl font-bold sm:hidden">KKB</span>
+                <span className="text-xl font-bold sm:hidden">DM</span>
               </Link>
             </div>
 
