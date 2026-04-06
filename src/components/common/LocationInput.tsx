@@ -26,11 +26,11 @@ declare global {
   }
 }
 
-const KUSHTIA_BOUNDS = {
-  north: 23.9391,
-  south: 23.8891,
-  east: 89.15,
-  west: 89.09,
+const NARAIL_BOUNDS = {
+  north: 23.2371,
+  south: 23.1871,
+  east: 89.5315,
+  west: 89.4715,
 };
 
 export default function LocationInput({
@@ -72,8 +72,8 @@ export default function LocationInput({
 
     const options = {
       bounds: new google.maps.LatLngBounds(
-        new google.maps.LatLng(KUSHTIA_BOUNDS.south, KUSHTIA_BOUNDS.west),
-        new google.maps.LatLng(KUSHTIA_BOUNDS.north, KUSHTIA_BOUNDS.east)
+        new google.maps.LatLng(NARAIL_BOUNDS.south, NARAIL_BOUNDS.west),
+        new google.maps.LatLng(NARAIL_BOUNDS.north, NARAIL_BOUNDS.east)
       ),
       componentRestrictions: { country: "BD" },
       fields: ["address_components", "geometry", "formatted_address"],
@@ -108,12 +108,12 @@ export default function LocationInput({
   const initializeMap = () => {
     if (!mapRef.current) return;
 
-    const defaultLocation = { lat: 23.9088, lng: 89.122 }; // Kushtia center
+    const defaultLocation = { lat: 23.2371, lng: 89.5315 }; // Narail center
     const mapOptions: google.maps.MapOptions = {
       center: defaultLocation,
       zoom: 14,
       restriction: {
-        latLngBounds: KUSHTIA_BOUNDS,
+        latLngBounds: NARAIL_BOUNDS,
         strictBounds: true,
       },
       mapTypeControl: false,
@@ -158,12 +158,12 @@ export default function LocationInput({
           const lng = position.coords.longitude;
 
           // Check if location is within Kushtia bounds
-          if (
-            lat > KUSHTIA_BOUNDS.south &&
-            lat < KUSHTIA_BOUNDS.north &&
-            lng > KUSHTIA_BOUNDS.west &&
-            lng < KUSHTIA_BOUNDS.east
-          ) {
+          // if (
+          //   lat > NARAIL_BOUNDS.south &&
+          //   lat < NARAIL_BOUNDS.north &&
+          //   lng > NARAIL_BOUNDS.west &&
+          //   lng < NARAIL_BOUNDS.east
+          // ) {
             const geocoder = new google.maps.Geocoder();
             geocoder.geocode({ location: { lat, lng } }, (results, status) => {
               if (status === "OK" && results?.[0]) {
@@ -179,9 +179,9 @@ export default function LocationInput({
                 }
               }
             });
-          } else {
-            alert("আপনার বর্তমান অবস্থান কুষ্টিয়া শহরের বাইরে!");
-          }
+          // } else {
+          //   alert("আপনার বর্তমান অবস্থান নড়াইল শহরের বাইরে!");
+          // }
         },
         (error) => {
           console.error("Error getting location:", error);

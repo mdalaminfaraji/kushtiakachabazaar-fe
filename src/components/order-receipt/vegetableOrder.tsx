@@ -69,6 +69,43 @@ const vegetables = [
     isPricePerPiece: true,
   },
   { id: 30, name: "কাঁচা মরিচ", englishName: "Green Chili", perKgPrice: 150 },
+
+  // --- 🍚 GROCERY STAPLES (High Demand) ---
+  { id: 31, name: "মিনিকেট চাল", englishName: "Miniket Rice", category: "Grocery", perKgPrice: 75 },
+  { id: 32, name: "মসুর ডাল", englishName: "Red Lentils (Deshi)", category: "Grocery", perKgPrice: 145 },
+  { id: 33, name: "সয়াবিন তেল (৫ লিটার)", englishName: "Soybean Oil 5L", category: "Grocery", pricePerPiece: 810, isPricePerPiece: true },
+  { id: 34, name: "চিনি", englishName: "Sugar", category: "Grocery", perKgPrice: 135 },
+  { id: 35, name: "আটা (২ কেজি প্যাকেট)", englishName: "Atta (2kg Pack)", category: "Grocery", pricePerPiece: 120, isPricePerPiece: true },
+
+  // --- 🌶️ SPICES (মশলা) ---
+  { id: 36, name: "হলুদ গুঁড়া (২০০ গ্রাম)", englishName: "Turmeric Powder 200g", category: "Spices", pricePerPiece: 90, isPricePerPiece: true },
+  { id: 37, name: "মরিচ গুঁড়া (২০০ গ্রাম)", englishName: "Chili Powder 200g", category: "Spices", pricePerPiece: 110, isPricePerPiece: true },
+  { id: 38, name: "আদা", englishName: "Ginger", category: "Spices", perKgPrice: 180 },
+  { id: 39, name: "রসুন (দেশি)", englishName: "Garlic (Local)", category: "Spices", perKgPrice: 220 },
+  { id: 40, name: "পেঁয়াজ", englishName: "Onion", category: "Spices", perKgPrice: 90 },
+
+  // --- 🥛 DAIRY & BREAKFAST ---
+  { id: 41, name: "ডিম (১ ডজন)", englishName: "Eggs (1 Dozen)", category: "Dairy", pricePerPiece: 155, isPricePerPiece: true },
+  { id: 42, name: "তরল দুধ (১ লিটার)", englishName: "Liquid Milk 1L", category: "Dairy", pricePerPiece: 95, isPricePerPiece: true },
+  { id: 43, name: "ডানো গুঁড়ো দুধ (৫০০ গ্রাম)", englishName: "Dano Milk Powder 500g", category: "Dairy", pricePerPiece: 475, isPricePerPiece: true },
+  { id: 44, name: "ইস্পাহানি চা (৪০০ গ্রাম)", englishName: "Ispahani Tea 400g", category: "Beverage", pricePerPiece: 230, isPricePerPiece: true },
+
+  // --- 🧼 PERSONAL CARE & HYGIENE ---
+  { id: 45, name: "সাবান (লাক্স)", englishName: "Lux Soap 150g", category: "Hygiene", pricePerPiece: 75, isPricePerPiece: true },
+  { id: 46, name: "সানসিল্ক শ্যাম্পু", englishName: "Sunsilk Shampoo 180ml", category: "Hygiene", pricePerPiece: 220, isPricePerPiece: true },
+  { id: 47, name: "পেপসোডেন্ট টুথপেস্ট", englishName: "Pepsodent 200g", category: "Hygiene", pricePerPiece: 185, isPricePerPiece: true },
+  { id: 48, name: "হুইল ডিটারজেন্ট (১ কেজি)", englishName: "Wheel Powder 1kg", category: "Cleaning", pricePerPiece: 110, isPricePerPiece: true },
+  { id: 49, name: "হারপিক (৭৫০ মিলি)", englishName: "Harpic Toilet Cleaner 750ml", category: "Cleaning", pricePerPiece: 180, isPricePerPiece: true },
+
+  // --- 👶 BABY CARE ---
+  { id: 50, name: "মামিপোকো প্যান্টস (L)", englishName: "MamyPoko Pants (L)", category: "Baby Care", pricePerPiece: 1250, isPricePerPiece: true },
+  { id: 51, name: "সেরেল্যাক (গমের)", englishName: "Cerelac Wheat 400g", category: "Baby Care", pricePerPiece: 450, isPricePerPiece: true },
+  { id: 52, name: "বেবি ওয়াইপস (প্যামপার্স)", englishName: "Baby Wipes (Pampers)", category: "Baby Care", pricePerPiece: 280, isPricePerPiece: true },
+
+  // --- 🍗 FISH & MEAT ---
+  { id: 53, name: "মুরগি (ব্রয়লার)", englishName: "Broiler Chicken", category: "Meat", perKgPrice: 200 },
+  { id: 54, name: "গরুর মাংস", englishName: "Beef", category: "Meat", perKgPrice: 750 },
+  { id: 55, name: "ইলিশ মাছ (৮০০ গ্রাম+)", englishName: "Hilsa Fish (800g+)", category: "Fish", perKgPrice: 1600 }
 ];
 
 // Quantity options for weight-based products (in grams)
