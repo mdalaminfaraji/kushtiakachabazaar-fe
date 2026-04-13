@@ -40,10 +40,10 @@ export interface Product {
   description_bn: string;
   inStock: boolean;
   stock: number;
-  isPopular: boolean;
-  isFlashSale: boolean;
+  isPopular?: boolean;
+  isFlashSale?: boolean;
   flashSaleEndDate?: string;
-  image?: Image;
+  image: Image;
   images?: Image[];
   category?: Category;
   subCategory?: SubCategory;

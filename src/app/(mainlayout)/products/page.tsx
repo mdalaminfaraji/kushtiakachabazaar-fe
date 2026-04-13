@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { products } from "@/data/products";
 import ProductCard from "@/components/shared/product-card";
-import Sidebar from "@/components/home/sidebar";
+import FilterSidebar from "@/components/products/filter-sidebar";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -22,19 +22,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ShoppingCart, Search, SlidersHorizontal } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { ShoppingCart, Search, SlidersHorizontal, LayoutGrid, List as ListIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { Product } from "@/types";
 
 const AllProductsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState("featured");
-  const [filteredProducts, setFilteredProducts] = useState(products);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
   const [priceRange, setPriceRange] = useState({ min: 0, max: 10000 });
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [inStockOnly, setInStockOnly] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const filtered = products.filter(
+    let filtered = products.filter(
       (product) =>
         product.name_bn.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -43,6 +47,28 @@ const AllProductsPage = () => {
           .includes(searchTerm.toLowerCase()) ||
         product.description.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    // Filter by Price
+    filtered = filtered.filter(
+      (product) =>
+        (product.discountPrice || product.price) >= priceRange.min &&
+        (product.discountPrice || product.price) <= priceRange.max
+    );
+
+    // Filter by Category
+    if (selectedCategory) {
+      filtered = filtered.filter(
+        (product) => 
+          product.categoryId === selectedCategory || 
+          product.subCategoryId === selectedCategory || 
+          product.childCategoryId === selectedCategory
+      );
+    }
+
+    // Filter by Availability
+    if (inStockOnly) {
+      filtered = filtered.filter((product) => product.inStock);
+    }
 
     const sorted = [...filtered];
 
@@ -59,7 +85,6 @@ const AllProductsPage = () => {
         break;
       case "newest":
         // Assuming we would have a date field in real products
-        // Here we just keep the order as is
         break;
       case "featured":
       default:
@@ -68,7 +93,7 @@ const AllProductsPage = () => {
     }
 
     setFilteredProducts(sorted);
-  }, [searchTerm, sortBy]);
+  }, [searchTerm, sortBy, priceRange, selectedCategory, inStockOnly]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -85,41 +110,16 @@ const AllProductsPage = () => {
       </Breadcrumb>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Sidebar */}
-        <div className="lg:block hidden">
-          <Card className="overflow-hidden">
-            <div className="p-4 bg-primary text-white font-medium">
-              <h2 className="text-lg">ক্যাটাগরি</h2>
-            </div>
-            <Sidebar />
-          </Card>
-
-          <Card className="overflow-hidden mt-6">
-            <div className="p-4 bg-primary text-white font-medium">
-              <h2 className="text-lg">দাম অনুযায়ী ফিল্টার</h2>
-            </div>
-            <div className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm">৳{priceRange.min}</span>
-                <span className="text-sm">৳{priceRange.max}</span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="10000"
-                step="100"
-                value={priceRange.max}
-                onChange={(e) =>
-                  setPriceRange({
-                    ...priceRange,
-                    max: parseInt(e.target.value),
-                  })
-                }
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-              />
-              <Button className="w-full mt-4">ফিল্টার করুন</Button>
-            </div>
-          </Card>
+        {/* Sidebar for Desktop */}
+        <div className="lg:block hidden space-y-6">
+          <FilterSidebar 
+            activeCategoryId={selectedCategory}
+            priceRange={priceRange}
+            inStockOnly={inStockOnly}
+            onCategoryChange={setSelectedCategory}
+            onPriceChange={(min, max) => setPriceRange({ min, max })}
+            onAvailabilityChange={setInStockOnly}
+          />
         </div>
 
         {/* Products Section */}
@@ -156,19 +156,38 @@ const AllProductsPage = () => {
                   className="h-9 w-9 p-0"
                   onClick={() => setViewMode("grid")}
                 >
-                  <i className="grid text-lg">⊞</i>
+                  <LayoutGrid className="h-4 w-4" />
                 </Button>
                 <Button
                   variant={viewMode === "list" ? "default" : "outline"}
                   className="h-9 w-9 p-0"
                   onClick={() => setViewMode("list")}
                 >
-                  <i className="list text-lg">≡</i>
+                  <ListIcon className="h-4 w-4" />
                 </Button>
               </div>
-              <Button variant="outline" className="lg:hidden" size="icon">
-                <SlidersHorizontal className="h-4 w-4" />
-              </Button>
+              
+              {/* Mobile Filter Sheet */}
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="outline" className="lg:hidden" size="icon">
+                    <SlidersHorizontal className="h-4 w-4" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-[300px] sm:w-[400px] overflow-y-auto">
+                  <SheetHeader className="mb-4">
+                    <SheetTitle className="text-left">ফিল্টার করুন</SheetTitle>
+                  </SheetHeader>
+                  <FilterSidebar 
+                    activeCategoryId={selectedCategory}
+                    priceRange={priceRange}
+                    inStockOnly={inStockOnly}
+                    onCategoryChange={setSelectedCategory}
+                    onPriceChange={(min, max) => setPriceRange({ min, max })}
+                    onAvailabilityChange={setInStockOnly}
+                  />
+                </SheetContent>
+              </Sheet>
             </div>
           </div>
 
@@ -192,14 +211,14 @@ const AllProductsPage = () => {
           ) : viewMode === "grid" ? (
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
               {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard key={product.documentId} product={product} />
               ))}
             </div>
           ) : (
             <div className="space-y-4">
               {filteredProducts.map((product) => (
                 <Card
-                  key={product.id}
+                  key={product.documentId}
                   className="overflow-hidden group hover:shadow-md transition"
                 >
                   <div className="flex flex-col md:flex-row">
@@ -207,7 +226,7 @@ const AllProductsPage = () => {
                       <Link href={`/product/${product.slug}`}>
                         <div className="relative h-48 w-full overflow-hidden">
                           <Image
-                            src={product.image}
+                            src={product.image?.url}
                             alt={product.name}
                             fill
                             className="object-cover group-hover:scale-105 transition-transform duration-300"

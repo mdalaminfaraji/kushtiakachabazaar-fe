@@ -1,5 +1,5 @@
 export interface Product {
-  id: string;
+  documentId: string;
   name: string;
   name_bn: string;
   slug: string;
@@ -14,6 +14,7 @@ export interface Product {
   subCategoryId: string;
   childCategoryId?: string;
   inStock: boolean;
+  stock: number;
   isPopular?: boolean;
   isFlashSale?: boolean;
   flashSaleEndDate?: string;
@@ -22,7 +23,7 @@ export interface Product {
 export const products: Product[] = [
   // Fresh Fruits
   {
-    id: "prod-1",
+    documentId: "prod-1",
     name: "Premium Banana (Dozen)",
     name_bn: "প্রিমিয়াম কলা (ডজন)",
     slug: "premium-banana-dozen",
@@ -37,12 +38,13 @@ export const products: Product[] = [
     subCategoryId: "subcat-1",
     childCategoryId: "childcat-1",
     inStock: true,
+    stock: 10,
     isPopular: true,
     isFlashSale: true,
     flashSaleEndDate: "2025-04-01T23:59:59+06:00"
   },
   {
-    id: "prod-2",
+    documentId: "prod-2",
     name: "Apple (4 pieces)",
     name_bn: "আপেল (৪ পিস)",
     slug: "apple-4-pieces",
@@ -57,10 +59,11 @@ export const products: Product[] = [
     subCategoryId: "subcat-1",
     childCategoryId: "childcat-1",
     inStock: true,
+    stock: 10,
     isPopular: true
   },
   {
-    id: "prod-3",
+    documentId: "prod-3",
     name: "Organic Mango",
     name_bn: "অর্গানিক আম",
     slug: "organic-mango",
@@ -73,10 +76,11 @@ export const products: Product[] = [
     categoryId: "cat-1",
     subCategoryId: "subcat-1",
     childCategoryId: "childcat-1",
-    inStock: true
+    inStock: true,
+    stock: 10,
   },
   {
-    id: "prod-4",
+    documentId: "prod-4",
     name: "Watermelon",
     name_bn: "তরমুজ",
     slug: "watermelon",
@@ -91,12 +95,13 @@ export const products: Product[] = [
     subCategoryId: "subcat-1",
     childCategoryId: "childcat-1",
     inStock: true,
+    stock: 10,
     isPopular: true
   },
   
   // Fresh Vegetables
   {
-    id: "prod-5",
+    documentId: "prod-5",
     name: "Fresh Potato",
     name_bn: "তাজা আলু",
     slug: "fresh-potato",
@@ -110,11 +115,12 @@ export const products: Product[] = [
     subCategoryId: "subcat-1",
     childCategoryId: "childcat-2",
     inStock: true,
+    stock: 10,
     isFlashSale: true,
     flashSaleEndDate: "2025-04-01T23:59:59+06:00"
   },
   {
-    id: "prod-6",
+    documentId: "prod-6",
     name: "Organic Tomato",
     name_bn: "অর্গানিক টমেটো",
     slug: "organic-tomato",
@@ -129,10 +135,11 @@ export const products: Product[] = [
     subCategoryId: "subcat-1",
     childCategoryId: "childcat-2",
     inStock: true,
+    stock: 10,
     isPopular: true
   },
   {
-    id: "prod-7",
+    documentId: "prod-7",
     name: "Fresh Onion",
     name_bn: "তাজা পেঁয়াজ",
     slug: "fresh-onion",
@@ -145,10 +152,11 @@ export const products: Product[] = [
     categoryId: "cat-1",
     subCategoryId: "subcat-1",
     childCategoryId: "childcat-2",
-    inStock: true
+    inStock: true,
+    stock: 10,
   },
   {
-    id: "prod-8",
+    documentId: "prod-8",
     name: "Green Capsicum",
     name_bn: "সবুজ ক্যাপসিকাম",
     slug: "green-capsicum",
@@ -162,12 +170,13 @@ export const products: Product[] = [
     categoryId: "cat-1",
     subCategoryId: "subcat-1",
     childCategoryId: "childcat-2",
-    inStock: true
+    inStock: true,
+    stock: 10,
   },
   
   // Meat & Fish
   {
-    id: "prod-9",
+    documentId: "prod-9",
     name: "Fresh Chicken (Whole)",
     name_bn: "তাজা মুরগি (সম্পূর্ণ)",
     slug: "fresh-chicken-whole",
@@ -181,10 +190,11 @@ export const products: Product[] = [
     categoryId: "cat-1",
     subCategoryId: "subcat-2",
     inStock: true,
+    stock: 10,
     isPopular: true
   },
   {
-    id: "prod-10",
+    documentId: "prod-10",
     name: "Fresh Beef",
     name_bn: "তাজা গরুর মাংস",
     slug: "fresh-beef",
@@ -197,11 +207,12 @@ export const products: Product[] = [
     categoryId: "cat-1",
     subCategoryId: "subcat-2",
     inStock: true,
+    stock: 10,
     isFlashSale: true,
     flashSaleEndDate: "2025-04-01T23:59:59+06:00"
   },
   {
-    id: "prod-11",
+    documentId: "prod-11",
     name: "Rui Fish",
     name_bn: "রুই মাছ",
     slug: "rui-fish",
@@ -215,12 +226,13 @@ export const products: Product[] = [
     categoryId: "cat-1",
     subCategoryId: "subcat-2",
     inStock: true,
+    stock: 10,
     isPopular: true
   },
   
   // Cooking
   {
-    id: "prod-12",
+    documentId: "prod-12",
     name: "Premium Basmati Rice",
     name_bn: "প্রিমিয়াম বাসমতি চাল",
     slug: "premium-basmati-rice",
@@ -233,10 +245,11 @@ export const products: Product[] = [
     categoryId: "cat-1",
     subCategoryId: "subcat-3",
     inStock: true,
+    stock: 10,
     isPopular: true
   },
   {
-    id: "prod-13",
+    documentId: "prod-13",
     name: "Pure Mustard Oil",
     name_bn: "খাঁটি সরিষার তেল",
     slug: "pure-mustard-oil",
@@ -250,13 +263,14 @@ export const products: Product[] = [
     categoryId: "cat-1",
     subCategoryId: "subcat-3",
     inStock: true,
+    stock: 10,
     isFlashSale: true,
     flashSaleEndDate: "2025-04-01T23:59:59+06:00"
   },
   
   // Sauces & Pickles
   {
-    id: "prod-14",
+    documentId: "prod-14",
     name: "Mango Pickle",
     name_bn: "আমের আচার",
     slug: "mango-pickle",
@@ -269,10 +283,11 @@ export const products: Product[] = [
     categoryId: "cat-1",
     subCategoryId: "subcat-4",
     inStock: true,
+    stock: 10,
     isPopular: true
   },
   {
-    id: "prod-15",
+    documentId: "prod-15",
     name: "Tomato Ketchup",
     name_bn: "টমেটো কেচাপ",
     slug: "tomato-ketchup",
@@ -285,12 +300,13 @@ export const products: Product[] = [
     description_bn: "ক্লাসিক টমেটো কেচাপ, স্ন্যাকস এবং খাবারের সাথে দারুণ।",
     categoryId: "cat-1",
     subCategoryId: "subcat-4",
-    inStock: true
+    inStock: true,
+    stock: 10,
   },
   
   // Cleaning Supplies - Laundry
   {
-    id: "prod-16",
+    documentId: "prod-16",
     name: "Detergent Powder",
     name_bn: "ডিটারজেন্ট পাউডার",
     slug: "detergent-powder",
@@ -304,12 +320,13 @@ export const products: Product[] = [
     categoryId: "cat-2",
     subCategoryId: "subcat-5",
     inStock: true,
+    stock: 10,
     isPopular: true
   },
   
   // Personal Care - Bath & Body
   {
-    id: "prod-17",
+    documentId: "prod-17",
     name: "Natural Soap",
     name_bn: "প্রাকৃতিক সাবান",
     slug: "natural-soap",
@@ -322,13 +339,14 @@ export const products: Product[] = [
     categoryId: "cat-3",
     subCategoryId: "subcat-7",
     inStock: true,
+    stock: 10,
     isFlashSale: true,
     flashSaleEndDate: "2025-04-01T23:59:59+06:00"
   },
   
   // Beauty & Makeup - Skincare
   {
-    id: "prod-18",
+    documentId: "prod-18",
     name: "Facial Cleanser",
     name_bn: "ফেসিয়াল ক্লিনজার",
     slug: "facial-cleanser",
@@ -342,12 +360,13 @@ export const products: Product[] = [
     categoryId: "cat-10",
     subCategoryId: "subcat-22",
     inStock: true,
+    stock: 10,
     isPopular: true
   },
   
   // Baby Care - Baby Food
   {
-    id: "prod-19",
+    documentId: "prod-19",
     name: "Baby Cereal",
     name_bn: "বেবি সিরিয়াল",
     slug: "baby-cereal",
@@ -359,12 +378,13 @@ export const products: Product[] = [
     description_bn: "স্বাস্থ্যকর বৃদ্ধির জন্য পুষ্টিকর শিশু সিরিয়াল।",
     categoryId: "cat-5",
     subCategoryId: "subcat-11",
-    inStock: true
+    inStock: true,
+    stock: 10,
   },
   
   // Home & Kitchen - Kitchenware
   {
-    id: "prod-20",
+    documentId: "prod-20",
     name: "Stainless Steel Cooking Pot",
     name_bn: "স্টেইনলেস স্টিল কুকিং পট",
     slug: "stainless-steel-cooking-pot",
@@ -378,6 +398,7 @@ export const products: Product[] = [
     categoryId: "cat-6",
     subCategoryId: "subcat-13",
     inStock: true,
+    stock: 10,
     isPopular: true,
     isFlashSale: true,
     flashSaleEndDate: "2025-04-01T23:59:59+06:00"
