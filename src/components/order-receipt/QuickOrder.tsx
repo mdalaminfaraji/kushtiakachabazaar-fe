@@ -18,9 +18,9 @@ import LocationInput from "@/components/common/LocationInput";
 import { cn } from "@/lib/utils";
 import { useMutation, useQuery } from "@apollo/client/react";
 import { CREATE_ORDER_MUTATION } from "@/graphql/orders/mutations";
-import { GET_PRODUCTS } from "@/graphql/products/query/productQuery";
+import { GET_NECESSARY_PRODUCTS_LISTS } from "@/graphql/products/query/productQuery";
 import { toast } from "sonner";
-import { CreateOrderResponse, OrderInput, ProductsResponse, Product } from "@/types/order";
+import { CreateOrderResponse, OrderInput, NecessaryProductsResponse, NecessaryProduct } from "@/types/order";
 import { useEffect } from "react";
 
 
@@ -37,18 +37,26 @@ const validatePhoneNumber = (phone: string) => {
 
 export default function QuickOrder() {
   const [order, setOrder] = useState<any[]>([]);
-  const { data: productsData, loading: productsLoading } = useQuery<ProductsResponse>(GET_PRODUCTS);
+  const { data: productsData, loading: productsLoading } = useQuery<NecessaryProductsResponse>(GET_NECESSARY_PRODUCTS_LISTS, {
+    variables: {
+      pagination: {
+        limit: 1000,
+      },
+    },
+  });
 
   useEffect(() => {
-    if (productsData?.products) {
-      const formattedProducts = productsData.products.map((p: Product) => {
-        const isPiece = p.unit.toLowerCase().includes("piece") || p.unit.toLowerCase().includes("পিস");
+    if (productsData?.necessaryProductsLists) {
+      const formattedProducts = productsData.necessaryProductsLists.map((p: NecessaryProduct) => {
+        const isPiece = p.isPricePerPiece;
         return {
           id: p.documentId,
-          name: p.name_bn,
-          englishName: p.name,
-          price: p.price,
+          name: p.name,
+          englishName: p.englishName,
+          price: p.pricePerKg,
+          pricePerPiece: p.pricePerPiece,
           unit: p.unit,
+          isAvailable: p.isAvailable,
           isPricePerPiece: isPiece,
           quantity: 0,
           total: 0,
@@ -212,7 +220,15 @@ export default function QuickOrder() {
               ) : filteredVegetables.length === 0 ? (
                 <p className="text-center py-8">কোন পণ্য পাওয়া যায়নি</p>
               ) : (
-                filteredVegetables.map((item) => (
+                filteredVegetables.map((item) => {
+                  if(item.isAvailable){
+                    return null;
+                  }
+                  //!TODO: this available feature
+                   
+                  return (
+                    <>
+             
                   <Card
                     key={item.id}
                     className={cn(
@@ -231,7 +247,7 @@ export default function QuickOrder() {
                       <div className="flex-1">
                         <h3 className="font-medium">{item.name}</h3>
                         <p className="text-sm text-muted-foreground">
-                          {item.englishName} - {item.price}৳/{item.unit}
+                          {item.englishName} - {item.isPricePerPiece ? item.pricePerPiece : item.price}৳/{item.unit}
                         </p>
                       </div>
                       <Select
@@ -265,7 +281,10 @@ export default function QuickOrder() {
                       </Select>
                     </CardContent>
                   </Card>
-                ))
+                  </>
+                  )
+                }
+                )
               )}
             </div>
           </ScrollArea>

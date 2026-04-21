@@ -38,3 +38,20 @@ export interface Product {
 export interface ProductsResponse {
   products: Product[];
 }
+
+export interface NecessaryProduct {
+  documentId: string;
+  name: string;
+  englishName: string;
+  isPricePerPiece: boolean;
+  pieceOptions: number[];
+  unit: string;
+  isAvailable: boolean;
+  pricePerKg: number;
+  pricePerPiece: number;
+  quantityOptions: number[];
+}
+
+export interface NecessaryProductsResponse {
+  necessaryProductsLists: NecessaryProduct[];
+}

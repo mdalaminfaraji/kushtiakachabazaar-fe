@@ -1,5 +1,6 @@
 import { gql } from "@apollo/client";
 
+
 export const GET_PRODUCTS = gql`
   query GetProducts {
     products {
@@ -88,3 +89,27 @@ export const GET_PRODUCT_BY_SLUG = gql`
     }
   }
 `;
+
+
+// interface PaginationArg {
+//   limit?: number;
+//   start?: number;
+//   page?: number;
+//   pageSize?: number;
+// }
+
+export const GET_NECESSARY_PRODUCTS_LISTS = gql`
+query NecessaryProductsLists($pagination: PaginationArg) {
+  necessaryProductsLists(pagination:$pagination) {
+  documentId
+  name
+  englishName
+  isPricePerPiece
+  pieceOptions
+  unit
+  isAvailable
+  pricePerKg
+  pricePerPiece
+  quantityOptions
+  }
+}`;
